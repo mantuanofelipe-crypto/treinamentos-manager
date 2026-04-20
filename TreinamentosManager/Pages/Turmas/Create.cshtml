@@ -1,0 +1,129 @@
+@page
+@model TreinamentosManager.Pages.Turmas.CreateModel
+@{
+    ViewData["Title"] = "Criar Turma";
+}
+
+<div class="card shadow-sm">
+    <div class="card-header-dk d-flex align-items-center gap-2">
+        <i class="fas fa-plus-circle"></i>
+        <h5 class="mb-0">Criar Nova Turma</h5>
+    </div>
+    <div class="card-body p-4">
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+            <!-- Status (calculado automaticamente) -->
+            <div class="alert d-flex align-items-center gap-2" style="background:#FDFBF5; border-left:4px solid #D79A00;">
+                <i class="fas fa-info-circle" style="color:#D79A00"></i>
+                <small>O <strong>Status</strong> é calculado automaticamente com base nas datas de início e fim.</small>
+            </div>
+
+            <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                    <label asp-for="Turma.IdAutodesk" class="form-label form-label-dk">ID Autodesk</label>
+                    <input asp-for="Turma.IdAutodesk" class="form-control" placeholder="Ex: AUT-2024-001" />
+                    <span asp-validation-for="Turma.IdAutodesk" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Turma.CargaHoraria" class="form-label form-label-dk">Carga Horária (horas)</label>
+                    <input asp-for="Turma.CargaHoraria" class="form-control" type="number" min="1" />
+                    <span asp-validation-for="Turma.CargaHoraria" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                    <label asp-for="Turma.ClienteId" class="form-label form-label-dk">Cliente <span class="text-danger">*</span></label>
+                    <select asp-for="Turma.ClienteId" class="form-select" asp-items="ViewBag.ClienteId" required>
+                        <option value="">— Selecione um Cliente —</option>
+                    </select>
+                    <span asp-validation-for="Turma.ClienteId" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Turma.SoftwareId" class="form-label form-label-dk">Software <span class="text-danger">*</span></label>
+                    <select asp-for="Turma.SoftwareId" class="form-select" asp-items="ViewBag.SoftwareId" required>
+                        <option value="">— Selecione um Software —</option>
+                    </select>
+                    <span asp-validation-for="Turma.SoftwareId" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                    <label asp-for="Turma.Inicio" class="form-label form-label-dk">Data de Início <span class="text-danger">*</span></label>
+                    <input asp-for="Turma.Inicio" class="form-control" type="datetime-local" id="dtInicio" />
+                    <span asp-validation-for="Turma.Inicio" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Turma.Fim" class="form-label form-label-dk">Data de Fim <span class="text-danger">*</span></label>
+                    <input asp-for="Turma.Fim" class="form-control" type="datetime-local" id="dtFim" />
+                    <span asp-validation-for="Turma.Fim" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <!-- Preview do Status -->
+            <div class="mb-3">
+                <label class="form-label form-label-dk">Status (calculado automaticamente)</label>
+                <div id="statusPreview" class="status-display" style="background:#e9ecef; color:#6c757d;">
+                    <i class="fas fa-clock"></i> Preencha as datas
+                </div>
+            </div>
+
+            <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                    <label asp-for="Turma.DiasDaSemana" class="form-label form-label-dk">Dias da Semana</label>
+                    <input asp-for="Turma.DiasDaSemana" class="form-control" placeholder="Ex: Segunda e Quarta" />
+                    <span asp-validation-for="Turma.DiasDaSemana" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Turma.InstrutorId" class="form-label form-label-dk">Instrutor</label>
+                    <select asp-for="Turma.InstrutorId" class="form-select" asp-items="ViewBag.InstrutorId">
+                        <option value="">— Selecione (opcional) —</option>
+                    </select>
+                    <span asp-validation-for="Turma.InstrutorId" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="section-divider"></div>
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-dk-primary btn-lg px-4">
+                    <i class="fas fa-save me-1"></i> Criar Turma
+                </button>
+                <a asp-page="Index" class="btn btn-dk-secondary btn-lg px-4">
+                    <i class="fas fa-arrow-left me-1"></i> Voltar
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        function calcularStatus() {
+            const inicio = new Date(document.getElementById('dtInicio').value);
+            const fim = new Date(document.getElementById('dtFim').value);
+            const agora = new Date();
+            const el = document.getElementById('statusPreview');
+
+            if (!document.getElementById('dtInicio').value || !document.getElementById('dtFim').value) {
+                el.innerHTML = '<i class="fas fa-clock"></i> Preencha as datas';
+                el.style.background = '#e9ecef'; el.style.color = '#6c757d';
+                return;
+            }
+            if (fim < agora) {
+                el.innerHTML = '<i class="fas fa-check-circle"></i> Concluída';
+                el.style.background = '#28a745'; el.style.color = '#fff';
+            } else if (inicio <= agora && fim >= agora) {
+                el.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Em andamento';
+                el.style.background = '#e6a817'; el.style.color = '#fff';
+            } else {
+                el.innerHTML = '<i class="fas fa-calendar-alt"></i> Futura';
+                el.style.background = '#0d6efd'; el.style.color = '#fff';
+            }
+        }
+        document.getElementById('dtInicio').addEventListener('change', calcularStatus);
+        document.getElementById('dtFim').addEventListener('change', calcularStatus);
+    </script>
+}

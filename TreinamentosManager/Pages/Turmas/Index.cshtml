@@ -1,0 +1,85 @@
+@page
+@model TreinamentosManager.Pages.Turmas.IndexModel
+@{
+    ViewData["Title"] = "Turmas";
+}
+
+<div class="card shadow-sm">
+    <div class="card-header-dk d-flex justify-content-between align-items-center">
+        <h5 class="mb-0"><i class="fas fa-chalkboard-teacher me-2"></i>Gerenciar Turmas</h5>
+        <a asp-page="Create" class="btn btn-dk-primary btn-sm px-3">
+            <i class="fas fa-plus me-1"></i> Nova Turma
+        </a>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Status</th>
+                        <th>ID Autodesk</th>
+                        <th>Cliente</th>
+                        <th>Software</th>
+                        <th>Carga Horária</th>
+                        <th>Dias da Semana</th>
+                        <th>Início</th>
+                        <th>Fim</th>
+                        <th>Instrutor</th>
+                        <th class="text-center">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Turmas)
+                    {
+                        <tr>
+                            <td>
+                                @{
+                                    var badgeClass = item.Status switch {
+                                        "Concluída"    => "badge-concluida",
+                                        "Em andamento" => "badge-andamento",
+                                        _              => "badge-futura"
+                                    };
+                                    var icon = item.Status switch {
+                                        "Concluída"    => "fa-check-circle",
+                                        "Em andamento" => "fa-spinner",
+                                        _              => "fa-calendar-alt"
+                                    };
+                                }
+                                <span class="badge @badgeClass px-2 py-1">
+                                    <i class="fas @icon me-1"></i>@item.Status
+                                </span>
+                            </td>
+                            <td>@Html.DisplayFor(m => item.IdAutodesk)</td>
+                            <td>@(item.Cliente?.Nome ?? "—")</td>
+                            <td>@(item.Software?.Nome ?? "—")</td>
+                            <td>@Html.DisplayFor(m => item.CargaHoraria)h</td>
+                            <td>@Html.DisplayFor(m => item.DiasDaSemana)</td>
+                            <td>@item.Inicio.ToString("dd/MM/yyyy")</td>
+                            <td>@item.Fim.ToString("dd/MM/yyyy")</td>
+                            <td>@(item.Instrutor?.Nome ?? "—")</td>
+                            <td class="text-center">
+                                <a asp-page="./Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-warning" title="Editar">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a asp-page="./Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary" title="Detalhes">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a asp-page="./Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger" title="Excluir">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                    @if (!Model.Turmas.Any())
+                    {
+                        <tr>
+                            <td colspan="10" class="text-center py-4 text-muted">
+                                <i class="fas fa-inbox fa-2x mb-2 d-block"></i>Nenhuma turma cadastrada ainda.
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

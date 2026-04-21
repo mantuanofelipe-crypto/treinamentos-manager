@@ -15,5 +15,7 @@ namespace TreinamentosManager.Models
         public DbSet<Instrutor> Instrutores { get; set; }
         public DbSet<Cliente> Clientes { get; set; }
         public DbSet<Software> Softwares { get; set; }
+        public DbSet<InstrutorProficiencia> InstrutorProficiencias { get; set; }
+        public DbSet<InstrutorACP> InstrutorACPs { get; set; }
     }
 }

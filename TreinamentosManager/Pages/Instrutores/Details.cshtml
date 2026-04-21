@@ -1,0 +1,86 @@
+@page "{id}"
+@model TreinamentosManager.Pages.Instrutores.DetailsModel
+@{
+    ViewData["Title"] = "Detalhes do Instrutor";
+}
+
+<h1>@Model.Instrutor.Nome</h1>
+<p class="text-muted">@Model.Instrutor.Email</p>
+<hr />
+
+<div class="row">
+    <div class="col-md-4">
+        <h5>Certificações</h5>
+        <dl>
+            <dt>ACI — Expiração</dt>
+            <dd>
+                @if (Model.Instrutor.DataExpiracaoACI.HasValue)
+                {
+                    var dias = (Model.Instrutor.DataExpiracaoACI.Value - DateTime.Today).Days;
+                    <span class="@(dias < 90 ? "text-danger fw-bold" : "")">
+                        @Model.Instrutor.DataExpiracaoACI.Value.ToString("dd/MM/yyyy")
+                        @if (dias < 0) { <span class="badge bg-danger">Expirada</span> }
+                        else if (dias < 90) { <span class="badge bg-warning text-dark">@dias dias</span> }
+                    </span>
+                }
+                else { <span class="text-muted">Não possui</span> }
+            </dd>
+        </dl>
+    </div>
+</div>
+
+<h5 class="mt-3">Proficiência por Software</h5>
+@if (!Model.Instrutor.Proficiencias.Any())
+{
+    <p class="text-muted">Nenhuma proficiência registrada.</p>
+}
+else
+{
+    <table class="table table-sm" style="max-width:400px">
+        <thead><tr><th>Software</th><th>Proficiência</th></tr></thead>
+        <tbody>
+            @foreach (var p in Model.Instrutor.Proficiencias)
+            {
+                <tr>
+                    <td>@p.Software.Nome</td>
+                    <td>
+                        @for (int s = 1; s <= 5; s++)
+                        {
+                            <span style="color:@(s <= p.Estrelas ? "#ffc107" : "#ccc");font-size:1.2rem">&#9733;</span>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<h5 class="mt-3">Certificações ACP</h5>
+@if (!Model.Instrutor.ACPs.Any())
+{
+    <p class="text-muted">Nenhuma ACP registrada.</p>
+}
+else
+{
+    <table class="table table-sm" style="max-width:500px">
+        <thead><tr><th>Software</th><th>Expiração ACP</th><th>Status</th></tr></thead>
+        <tbody>
+            @foreach (var a in Model.Instrutor.ACPs)
+            {
+                var dias = (a.DataExpiracao - DateTime.Today).Days;
+                <tr>
+                    <td>@a.Software.Nome</td>
+                    <td>@a.DataExpiracao.ToString("dd/MM/yyyy")</td>
+                    <td>
+                        @if (dias < 0) { <span class="badge bg-danger">Expirada</span> }
+                        else if (dias < 90) { <span class="badge bg-warning text-dark">@dias dias</span> }
+                        else { <span class="badge bg-success">OK</span> }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<a asp-page="./Edit" asp-route-id="@Model.Instrutor.Id" class="btn btn-warning">Editar</a>
+<a asp-page="Index" class="btn btn-secondary ms-2">Voltar</a>

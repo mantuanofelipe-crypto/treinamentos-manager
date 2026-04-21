@@ -1,0 +1,112 @@
+@page "{id}"
+@model TreinamentosManager.Pages.Instrutores.EditModel
+@{
+    ViewData["Title"] = "Editar Instrutor";
+}
+
+<h1>Editar Instrutor</h1>
+<hr />
+
+<form method="post">
+    <input type="hidden" asp-for="Instrutor.Id" />
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <h5>Dados Gerais</h5>
+            <div class="form-group mb-2">
+                <label asp-for="Instrutor.Nome" class="control-label"></label>
+                <input asp-for="Instrutor.Nome" class="form-control" />
+                <span asp-validation-for="Instrutor.Nome" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-2">
+                <label asp-for="Instrutor.Email" class="control-label"></label>
+                <input asp-for="Instrutor.Email" class="form-control" type="email" />
+                <span asp-validation-for="Instrutor.Email" class="text-danger"></span>
+            </div>
+            <div class="form-group mb-2">
+                <label asp-for="Instrutor.DataExpiracaoACI" class="control-label"></label>
+                <input asp-for="Instrutor.DataExpiracaoACI" class="form-control" type="date" />
+            </div>
+        </div>
+    </div>
+
+    <h5>Proficiência por Software</h5>
+    <table class="table table-sm mb-4" style="max-width:500px">
+        <thead>
+            <tr><th>Software</th><th>Estrelas (1–5)</th></tr>
+        </thead>
+        <tbody>
+            @for (int i = 0; i < Model.Softwares.Count; i++)
+            {
+                var sw = Model.Softwares[i];
+                var prof = Model.Proficiencias.FirstOrDefault(p => p.SoftwareId == sw.Id);
+                var estrelas = prof?.Estrelas ?? 0;
+                <tr>
+                    <td>@sw.Nome</td>
+                    <td>
+                        <input type="hidden" name="ProficienciasSoftwareIds[@i]" value="@sw.Id" />
+                        <div class="star-rating" data-index="@i">
+                            @for (int s = 1; s <= 5; s++)
+                            {
+                                <span class="star @(s <= estrelas ? "selected" : "")"
+                                      data-value="@s" style="cursor:pointer;font-size:1.4rem;color:@(s <= estrelas ? "#ffc107" : "#ccc")">&#9733;</span>
+                            }
+                        </div>
+                        <input type="hidden" name="ProficienciasEstrelas[@i]" value="@estrelas" id="estrelas_@i" />
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <h5>Certificações ACP (por Software)</h5>
+    <table class="table table-sm mb-4" style="max-width:600px">
+        <thead>
+            <tr><th>Software</th><th>Expiração ACP</th></tr>
+        </thead>
+        <tbody>
+            @for (int i = 0; i < Model.Softwares.Count; i++)
+            {
+                var sw = Model.Softwares[i];
+                var acp = Model.ACPs.FirstOrDefault(a => a.SoftwareId == sw.Id);
+                <tr>
+                    <td>@sw.Nome</td>
+                    <td>
+                        <input type="hidden" name="ACPsSoftwareIds[@i]" value="@sw.Id" />
+                        <input type="date" name="ACPsDatas[@i]" class="form-control form-control-sm"
+                               value="@(acp?.DataExpiracao.ToString("yyyy-MM-dd") ?? "")" style="max-width:180px" />
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <div>
+        <input type="submit" value="Salvar" class="btn btn-primary" />
+        <a asp-page="Index" class="btn btn-secondary ms-2">Cancelar</a>
+    </div>
+</form>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        document.querySelectorAll('.star-rating').forEach(function (container) {
+            var idx = container.dataset.index;
+            var stars = container.querySelectorAll('.star');
+            var input = document.getElementById('estrelas_' + idx);
+
+            stars.forEach(function (star) {
+                star.addEventListener('click', function () {
+                    var val = parseInt(this.dataset.value);
+                    input.value = val;
+                    stars.forEach(function (s) {
+                        var sv = parseInt(s.dataset.value);
+                        s.style.color = sv <= val ? '#ffc107' : '#ccc';
+                        s.classList.toggle('selected', sv <= val);
+                    });
+                });
+            });
+        });
+    </script>
+}

@@ -1,0 +1,53 @@
+@page
+@model TreinamentosManager.Pages.Certificacoes.IndexModel
+@{
+    ViewData["Title"] = "Certificações a Expirar";
+}
+
+<h1>Certificações a Expirar</h1>
+<p class="text-muted">Exibindo certificações que expiram nos próximos 180 dias ou já expiradas.</p>
+<hr />
+
+@if (!Model.Itens.Any())
+{
+    <div class="alert alert-success">Nenhuma certificação próxima de expirar.</div>
+}
+else
+{
+    <table class="table table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>Instrutor</th>
+                <th>Tipo</th>
+                <th>Software</th>
+                <th>Expiração</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Itens.OrderBy(i => i.DataExpiracao))
+            {
+                var dias = (item.DataExpiracao - DateTime.Today).Days;
+                var rowClass = dias < 0 ? "table-danger" : dias < 30 ? "table-warning" : "";
+                <tr class="@rowClass">
+                    <td>
+                        <a asp-page="/Instrutores/Details" asp-route-id="@item.InstrutorId">@item.InstrutorNome</a>
+                    </td>
+                    <td><span class="badge bg-secondary">@item.Tipo</span></td>
+                    <td>@(item.SoftwareNome ?? "—")</td>
+                    <td>@item.DataExpiracao.ToString("dd/MM/yyyy")</td>
+                    <td>
+                        @if (dias < 0)
+                        { <span class="badge bg-danger">Expirada há @(-dias) dias</span> }
+                        else if (dias == 0)
+                        { <span class="badge bg-danger">Expira hoje!</span> }
+                        else if (dias < 30)
+                        { <span class="badge bg-warning text-dark">@dias dias</span> }
+                        else
+                        { <span class="badge bg-info text-dark">@dias dias</span> }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

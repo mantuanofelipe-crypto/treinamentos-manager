@@ -13,7 +13,12 @@ namespace TreinamentosManager.Models
         [EmailAddress]
         public string Email { get; set; }
 
-        // Relacionamento com Turmas
+        [Display(Name = "Expiração ACI")]
+        [DataType(DataType.Date)]
+        public DateTime? DataExpiracaoACI { get; set; }
+
         public ICollection<Turma> Turmas { get; set; } = new List<Turma>();
+        public ICollection<InstrutorProficiencia> Proficiencias { get; set; } = new List<InstrutorProficiencia>();
+        public ICollection<InstrutorACP> ACPs { get; set; } = new List<InstrutorACP>();
     }
 }

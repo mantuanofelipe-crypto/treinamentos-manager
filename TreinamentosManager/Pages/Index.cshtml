@@ -4,64 +4,64 @@
     ViewData["Title"] = "Dashboard";
 }
 
-<div class="hero-banner mb-4">
+<div class="hero-banner mb-3">
     <h1 class="fw-bold mb-1"><span>DESK</span> CLASS</h1>
     <p class="mb-0 opacity-75">Sistema de Gerenciamento de Treinamentos — DeskGraphics Consulting</p>
 </div>
 
 <!-- Estatísticas de turmas -->
-<div class="row g-3 mb-4">
+<div class="row g-2 mb-3">
     <div class="col-6 col-lg-3">
-        <div class="stat-card stat-card-concluida shadow-sm">
-            <div class="fs-1 fw-bold">@Model.TurmasAtivas</div>
-            <div class="opacity-90"><i class="fas fa-check-circle me-1"></i>Turmas Concluídas</div>
+        <div class="stat-card stat-card-concluida shadow-sm py-2">
+            <div class="fs-3 fw-bold">@Model.TurmasAtivas</div>
+            <div class="opacity-90 small"><i class="fas fa-check-circle me-1"></i>Turmas Concluídas</div>
         </div>
     </div>
     <div class="col-6 col-lg-3">
-        <div class="stat-card stat-card-andamento shadow-sm">
-            <div class="fs-1 fw-bold">@Model.TurmasEmAndamento</div>
-            <div class="opacity-90"><i class="fas fa-spinner me-1"></i>Em Andamento</div>
+        <div class="stat-card stat-card-andamento shadow-sm py-2">
+            <div class="fs-3 fw-bold">@Model.TurmasEmAndamento</div>
+            <div class="opacity-90 small"><i class="fas fa-spinner me-1"></i>Em Andamento</div>
         </div>
     </div>
     <div class="col-6 col-lg-3">
-        <div class="stat-card stat-card-futura shadow-sm">
-            <div class="fs-1 fw-bold">@Model.TurmasFuturas</div>
-            <div class="opacity-90"><i class="fas fa-calendar-alt me-1"></i>Agendadas</div>
+        <div class="stat-card stat-card-futura shadow-sm py-2">
+            <div class="fs-3 fw-bold">@Model.TurmasFuturas</div>
+            <div class="opacity-90 small"><i class="fas fa-calendar-alt me-1"></i>Agendadas</div>
         </div>
     </div>
     <div class="col-6 col-lg-3">
-        <div class="stat-card stat-card-total shadow-sm">
-            <div class="fs-1 fw-bold">@Model.TotalClientes</div>
-            <div class="opacity-90"><i class="fas fa-building me-1"></i>Total Clientes</div>
+        <div class="stat-card stat-card-total shadow-sm py-2">
+            <div class="fs-3 fw-bold">@Model.TotalClientes</div>
+            <div class="opacity-90 small"><i class="fas fa-building me-1"></i>Total Clientes</div>
         </div>
     </div>
 </div>
 
 <!-- Previsão de alocação -->
-<div class="row g-3 mb-4">
+<div class="row g-2 mb-3">
     <div class="col-md-6">
-        <div class="card shadow-sm h-100 border-0" style="border-left: 4px solid #D79A00 !important;">
-            <div class="card-body">
+        <div class="card shadow-sm border-0 py-1" style="border-left: 4px solid #D79A00 !important;">
+            <div class="card-body py-2">
                 <div class="d-flex align-items-center gap-3">
-                    <div style="font-size:2.5rem;color:#D79A00"><i class="fas fa-hourglass-half"></i></div>
+                    <div style="font-size:1.8rem;color:#D79A00"><i class="fas fa-hourglass-half"></i></div>
                     <div>
                         <div class="text-muted small">Previsão de Alocação Atual</div>
-                        <div class="fs-2 fw-bold">@Model.PrevisaoAtual<span class="fs-6 fw-normal text-muted ms-1">horas</span></div>
-                        <div class="text-muted small">Turmas que encerram em @DateTime.Now.ToString("MMMM/yyyy")</div>
+                        <div class="fs-4 fw-bold">@Model.PrevisaoAtual<span class="fs-6 fw-normal text-muted ms-1">horas</span></div>
+                        <div class="text-muted" style="font-size:0.75rem">Turmas que encerram em @DateTime.Now.ToString("MMMM/yyyy")</div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
     <div class="col-md-6">
-        <div class="card shadow-sm h-100 border-0" style="border-left: 4px solid #0d6efd !important;">
-            <div class="card-body">
+        <div class="card shadow-sm border-0 py-1" style="border-left: 4px solid #0d6efd !important;">
+            <div class="card-body py-2">
                 <div class="d-flex align-items-center gap-3">
-                    <div style="font-size:2.5rem;color:#0d6efd"><i class="fas fa-chart-line"></i></div>
+                    <div style="font-size:1.8rem;color:#0d6efd"><i class="fas fa-chart-line"></i></div>
                     <div>
                         <div class="text-muted small">Previsão de Alocação Futura</div>
-                        <div class="fs-2 fw-bold">@Model.PrevisaoFutura<span class="fs-6 fw-normal text-muted ms-1">horas</span></div>
-                        <div class="text-muted small">Turmas que encerram em @DateTime.Now.AddMonths(1).ToString("MMMM/yyyy")</div>
+                        <div class="fs-4 fw-bold">@Model.PrevisaoFutura<span class="fs-6 fw-normal text-muted ms-1">horas</span></div>
+                        <div class="text-muted" style="font-size:0.75rem">Turmas que encerram em @DateTime.Now.AddMonths(1).ToString("MMMM/yyyy")</div>
                     </div>
                 </div>
             </div>
@@ -70,8 +70,8 @@
 </div>
 
 <!-- Gráfico evolutivo -->
-<div class="shadow-sm rounded mb-4 p-3 bg-white">
-    <h6 class="fw-bold mb-3"><i class="fas fa-chart-area me-2" style="color:#D79A00"></i>Evolução da Carga Horária por Mês</h6>
+<div class="shadow-sm rounded p-3 bg-white">
+    <h6 class="fw-bold mb-2"><i class="fas fa-chart-area me-2" style="color:#D79A00"></i>Evolução da Carga Horária por Mês</h6>
     <div class="mb-2">
         <div class="btn-group btn-group-sm" role="group" id="filtroModalidade">
             <button type="button" class="btn btn-outline-secondary active" data-modalidade="todos">Todos</button>
@@ -79,59 +79,7 @@
             <button type="button" class="btn btn-outline-secondary" data-modalidade="Online">Online</button>
         </div>
     </div>
-    <canvas id="graficoAlocacao" height="120"></canvas>
-</div>
-
-<!-- Acesso rápido -->
-<div class="row g-3">
-    <div class="col-md-6 col-lg-3">
-        <div class="card h-100 shadow-sm">
-            <div class="card-body text-center py-4">
-                <i class="fas fa-chalkboard-teacher fa-3x mb-3" style="color:#D79A00"></i>
-                <h5 class="fw-bold">Turmas</h5>
-                <p class="text-muted small">Gerencie as turmas de treinamento, datas e instrutores.</p>
-                <a href="/Turmas" class="btn btn-dk-primary w-100">
-                    <i class="fas fa-list me-1"></i> Gerenciar Turmas
-                </a>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-6 col-lg-3">
-        <div class="card h-100 shadow-sm">
-            <div class="card-body text-center py-4">
-                <i class="fas fa-user-tie fa-3x mb-3" style="color:#5A5A5A"></i>
-                <h5 class="fw-bold">Instrutores</h5>
-                <p class="text-muted small">Cadastre e gerencie os instrutores responsáveis.</p>
-                <a href="/Instrutores" class="btn btn-dk-secondary w-100">
-                    <i class="fas fa-users-cog me-1"></i> Gerenciar Instrutores
-                </a>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-6 col-lg-3">
-        <div class="card h-100 shadow-sm">
-            <div class="card-body text-center py-4">
-                <i class="fas fa-building fa-3x mb-3" style="color:#D79A00"></i>
-                <h5 class="fw-bold">Clientes</h5>
-                <p class="text-muted small">Gerencie a base de clientes participantes.</p>
-                <a href="/Clientes" class="btn btn-dk-primary w-100">
-                    <i class="fas fa-users me-1"></i> Gerenciar Clientes
-                </a>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-6 col-lg-3">
-        <div class="card h-100 shadow-sm">
-            <div class="card-body text-center py-4">
-                <i class="fas fa-cogs fa-3x mb-3" style="color:#5A5A5A"></i>
-                <h5 class="fw-bold">Softwares</h5>
-                <p class="text-muted small">Cadastre os softwares disponíveis para treinamentos.</p>
-                <a href="/Softwares" class="btn btn-dk-secondary w-100">
-                    <i class="fas fa-tools me-1"></i> Gerenciar Softwares
-                </a>
-            </div>
-        </div>
-    </div>
+    <canvas id="graficoAlocacao" height="90"></canvas>
 </div>
 
 @section Scripts {

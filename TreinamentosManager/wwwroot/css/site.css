@@ -155,7 +155,7 @@ body {
 /* ── DASHBOARD ── */
 .stat-card {
     border-radius: 8px;
-    padding: 1.5rem;
+    padding: 0.6rem 1rem;
     text-align: center;
     color: var(--dk-branco);
 }
@@ -170,7 +170,12 @@ body {
     border-left: 6px solid var(--dk-mostarda);
     border-radius: 8px;
     color: var(--dk-branco);
-    padding: 2.5rem 2rem;
+    padding: 0.6rem 1.2rem;
+}
+
+.hero-banner h1 {
+    font-size: 1.4rem !important;
+    margin-bottom: 0 !important;
 }
 
 .hero-banner h1 span {

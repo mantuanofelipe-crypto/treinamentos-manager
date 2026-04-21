@@ -79,7 +79,7 @@
             <button type="button" class="btn btn-outline-secondary" data-modalidade="Online">Online</button>
         </div>
     </div>
-    <canvas id="graficoAlocacao" height="90"></canvas>
+    <canvas id="graficoAlocacao"></canvas>
 </div>
 
 @section Scripts {
@@ -98,6 +98,7 @@
         data: { labels, datasets: buildDatasets('todos') },
         options: {
             responsive: true,
+            aspectRatio: 4,
             plugins: { legend: { position: 'top' }, tooltip: { mode: 'index', intersect: false } },
             scales: { y: { beginAtZero: true, title: { display: true, text: 'Horas' } } }
         }

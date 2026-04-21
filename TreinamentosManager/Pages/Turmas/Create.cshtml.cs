@@ -21,9 +21,9 @@ namespace TreinamentosManager.Pages.Turmas
 
         public IActionResult OnGet()
         {
-            ViewData["InstrutorId"] = new SelectList(_context.Instrutores, "Id", "Nome");
-            ViewData["ClienteId"] = new SelectList(_context.Clientes, "Id", "Nome");
-            ViewData["SoftwareId"] = new SelectList(_context.Softwares, "Id", "Nome");
+            ViewData["InstrutorId"] = new SelectList(_context.Instrutores.Where(i => i.Ativo).OrderBy(i => i.Nome), "Id", "Nome");
+            ViewData["ClienteId"] = new SelectList(_context.Clientes.Where(c => c.Ativo).OrderBy(c => c.Nome), "Id", "Nome");
+            ViewData["SoftwareId"] = new SelectList(_context.Softwares.OrderBy(s => s.Nome), "Id", "Nome");
             return Page();
         }
 
@@ -34,9 +34,9 @@ namespace TreinamentosManager.Pages.Turmas
         {
             if (!ModelState.IsValid)
             {
-                ViewData["InstrutorId"] = new SelectList(_context.Instrutores, "Id", "Nome");
-                ViewData["ClienteId"] = new SelectList(_context.Clientes, "Id", "Nome");
-                ViewData["SoftwareId"] = new SelectList(_context.Softwares, "Id", "Nome");
+                ViewData["InstrutorId"] = new SelectList(_context.Instrutores.Where(i => i.Ativo).OrderBy(i => i.Nome), "Id", "Nome");
+                ViewData["ClienteId"] = new SelectList(_context.Clientes.Where(c => c.Ativo).OrderBy(c => c.Nome), "Id", "Nome");
+                ViewData["SoftwareId"] = new SelectList(_context.Softwares.OrderBy(s => s.Nome), "Id", "Nome");
                 return Page();
             }
 

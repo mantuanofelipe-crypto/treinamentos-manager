@@ -4,12 +4,54 @@
     ViewData["Title"] = "Turmas";
 }
 
-<div class="card shadow-sm">
+<div class="card shadow-sm mb-3">
     <div class="card-header-dk d-flex justify-content-between align-items-center">
         <h5 class="mb-0"><i class="fas fa-chalkboard-teacher me-2"></i>Gerenciar Turmas</h5>
         <a asp-page="Create" class="btn btn-dk-primary btn-sm px-3">
             <i class="fas fa-plus me-1"></i> Nova Turma
         </a>
+    </div>
+    <div class="card-body pb-0">
+        <form method="get" class="row g-2 mb-3">
+            <div class="col-md-3">
+                <select name="status" class="form-select form-select-sm">
+                    <option value="">Todos os status</option>
+                    <option value="Futura" selected="@(Model.FiltroStatus == "Futura")">Futura</option>
+                    <option value="Em andamento" selected="@(Model.FiltroStatus == "Em andamento")">Em andamento</option>
+                    <option value="Concluída" selected="@(Model.FiltroStatus == "Concluída")">Concluída</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select name="clienteId" class="form-select form-select-sm">
+                    <option value="">Todos os clientes</option>
+                    @foreach (var c in Model.Clientes)
+                    {
+                        <option value="@c.Id" selected="@(Model.FiltroClienteId == c.Id)">@c.Nome</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select name="instrutorId" class="form-select form-select-sm">
+                    <option value="">Todos os instrutores</option>
+                    @foreach (var i in Model.Instrutores)
+                    {
+                        <option value="@i.Id" selected="@(Model.FiltroInstrutorId == i.Id)">@i.Nome</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select name="modalidade" class="form-select form-select-sm">
+                    <option value="">Todas as modalidades</option>
+                    <option value="Presencial" selected="@(Model.FiltroModalidade == "Presencial")">Presencial</option>
+                    <option value="Online" selected="@(Model.FiltroModalidade == "Online")">Online</option>
+                </select>
+            </div>
+            <div class="col-md-1">
+                <button type="submit" class="btn btn-dk-primary btn-sm w-100">
+                    <i class="fas fa-filter"></i>
+                </button>
+            </div>
+        </form>
     </div>
     <div class="card-body p-0">
         <div class="table-responsive">
@@ -17,6 +59,7 @@
                 <thead>
                     <tr>
                         <th>Status</th>
+                        <th>Modalidade</th>
                         <th>ID Autodesk</th>
                         <th>Cliente</th>
                         <th>Software</th>
@@ -49,6 +92,16 @@
                                     <i class="fas @icon me-1"></i>@item.Status
                                 </span>
                             </td>
+                            <td>
+                                @if (item.Modalidade == "Online")
+                                {
+                                    <span class="badge bg-info text-dark"><i class="fas fa-wifi me-1"></i>Online</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary"><i class="fas fa-map-marker-alt me-1"></i>Presencial</span>
+                                }
+                            </td>
                             <td>@Html.DisplayFor(m => item.IdAutodesk)</td>
                             <td>@(item.Cliente?.Nome ?? "—")</td>
                             <td>@(item.Software?.Nome ?? "—")</td>
@@ -73,8 +126,8 @@
                     @if (!Model.Turmas.Any())
                     {
                         <tr>
-                            <td colspan="10" class="text-center py-4 text-muted">
-                                <i class="fas fa-inbox fa-2x mb-2 d-block"></i>Nenhuma turma cadastrada ainda.
+                            <td colspan="11" class="text-center py-4 text-muted">
+                                <i class="fas fa-inbox fa-2x mb-2 d-block"></i>Nenhuma turma encontrada.
                             </td>
                         </tr>
                     }

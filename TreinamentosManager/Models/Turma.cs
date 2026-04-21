@@ -21,7 +21,10 @@ namespace TreinamentosManager.Models
             }
         }
 
-        public string? IdAutodesk { get; set; } // ID Autodesk
+        public string? IdAutodesk { get; set; }
+
+        [Display(Name = "Modalidade")]
+        public string Modalidade { get; set; } = "Presencial";
 
         // Relacionamento com Cliente
         [Required]

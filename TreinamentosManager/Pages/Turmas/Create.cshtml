@@ -20,15 +20,22 @@
             </div>
 
             <div class="row g-3 mb-3">
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <label asp-for="Turma.IdAutodesk" class="form-label form-label-dk">ID Autodesk</label>
                     <input asp-for="Turma.IdAutodesk" class="form-control" placeholder="Ex: AUT-2024-001" />
                     <span asp-validation-for="Turma.IdAutodesk" class="text-danger small"></span>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <label asp-for="Turma.CargaHoraria" class="form-label form-label-dk">Carga Horária (horas)</label>
                     <input asp-for="Turma.CargaHoraria" class="form-control" type="number" min="1" />
                     <span asp-validation-for="Turma.CargaHoraria" class="text-danger small"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="Turma.Modalidade" class="form-label form-label-dk">Modalidade</label>
+                    <select asp-for="Turma.Modalidade" class="form-select">
+                        <option value="Presencial">Presencial</option>
+                        <option value="Online">Online</option>
+                    </select>
                 </div>
             </div>
 

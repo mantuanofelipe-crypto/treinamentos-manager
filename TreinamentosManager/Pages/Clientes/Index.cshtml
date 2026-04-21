@@ -6,9 +6,9 @@
 
 <div class="card shadow-sm">
     <div class="card-header-dk d-flex justify-content-between align-items-center">
-        <h5 class="mb-0"><i class="fas fa-building me-2"></i>Gerenciar Clientes</h5>
+        <h5 class="mb-0"><i class="fas fa-building me-2"></i>Empresas Clientes</h5>
         <a asp-page="Create" class="btn btn-dk-primary btn-sm px-3">
-            <i class="fas fa-plus me-1"></i> Novo Cliente
+            <i class="fas fa-plus me-1"></i> Nova Empresa
         </a>
     </div>
     <div class="card-body p-0">
@@ -16,24 +16,33 @@
             <table class="table table-hover mb-0">
                 <thead>
                     <tr>
-                        <th>Nome</th>
-                        <th>Email</th>
                         <th>Empresa</th>
-                        <th>Telefone</th>
-                        <th class="text-center">Turmas Ativas</th>
+                        <th>Email</th>
+                        <th>CNPJ</th>
+                        <th class="text-center">Total Alunos</th>
+                        <th class="text-center">Futuras</th>
+                        <th class="text-center">Ativas</th>
+                        <th class="text-center">Finalizadas</th>
                         <th class="text-center">Ações</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach (var item in Model.Clientes)
                     {
+                        var now = DateTime.Now;
                         <tr>
-                            <td class="fw-500">@Html.DisplayFor(m => item.Nome)</td>
-                            <td>@Html.DisplayFor(m => item.Email)</td>
-                            <td>@Html.DisplayFor(m => item.Empresa)</td>
-                            <td>@Html.DisplayFor(m => item.Telefone)</td>
+                            <td class="fw-500">@item.Nome</td>
+                            <td>@item.Email</td>
+                            <td>@item.Empresa</td>
+                            <td class="text-center">@(item.TotalAlunos?.ToString() ?? "—")</td>
                             <td class="text-center">
-                                <span class="badge" style="background:#D79A00">@item.Turmas.Count(t => t.Fim > DateTime.Now)</span>
+                                <span class="badge bg-primary">@item.Turmas.Count(t => t.Inicio > now)</span>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge" style="background:#D79A00">@item.Turmas.Count(t => t.Inicio <= now && t.Fim >= now)</span>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge bg-success">@item.Turmas.Count(t => t.Fim < now)</span>
                             </td>
                             <td class="text-center">
                                 <a asp-page="./Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-warning" title="Editar">
@@ -51,8 +60,8 @@
                     @if (!Model.Clientes.Any())
                     {
                         <tr>
-                            <td colspan="6" class="text-center py-4 text-muted">
-                                <i class="fas fa-inbox fa-2x mb-2 d-block"></i>Nenhum cliente cadastrado ainda.
+                            <td colspan="8" class="text-center py-4 text-muted">
+                                <i class="fas fa-inbox fa-2x mb-2 d-block"></i>Nenhuma empresa cadastrada ainda.
                             </td>
                         </tr>
                     }

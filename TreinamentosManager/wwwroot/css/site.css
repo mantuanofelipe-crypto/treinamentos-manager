@@ -32,7 +32,6 @@ html {
 }
 
 body {
-    margin-bottom: 60px;
     background-color: var(--dk-neutro1);
     color: var(--dk-grafite);
     font-family: 'Roboto', sans-serif;

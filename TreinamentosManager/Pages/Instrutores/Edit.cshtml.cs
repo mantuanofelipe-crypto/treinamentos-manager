@@ -53,6 +53,7 @@ namespace TreinamentosManager.Pages.Instrutores
 
             instrutor.Nome = Instrutor.Nome;
             instrutor.Email = Instrutor.Email;
+            instrutor.Ativo = Instrutor.Ativo;
             instrutor.DataExpiracaoACI = Instrutor.DataExpiracaoACI;
 
             // Proficiências

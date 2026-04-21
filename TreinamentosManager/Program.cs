@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using TreinamentosManager.Models;
 using TreinamentosManager.Services;
 
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.

@@ -16,6 +16,7 @@
             <table class="table table-hover mb-0">
                 <thead>
                     <tr>
+                        <th>Status</th>
                         <th>Empresa</th>
                         <th>Email</th>
                         <th>CNPJ</th>
@@ -30,7 +31,13 @@
                     @foreach (var item in Model.Clientes)
                     {
                         var now = DateTime.Now;
-                        <tr>
+                        <tr class="@(!item.Ativo ? "table-secondary text-muted" : "")">
+                            <td>
+                                @if (item.Ativo)
+                                { <span class="badge bg-success">Ativo</span> }
+                                else
+                                { <span class="badge bg-secondary">Inativo</span> }
+                            </td>
                             <td class="fw-500">@item.Nome</td>
                             <td>@item.Email</td>
                             <td>@item.Empresa</td>
@@ -60,7 +67,7 @@
                     @if (!Model.Clientes.Any())
                     {
                         <tr>
-                            <td colspan="8" class="text-center py-4 text-muted">
+                            <td colspan="9" class="text-center py-4 text-muted">
                                 <i class="fas fa-inbox fa-2x mb-2 d-block"></i>Nenhuma empresa cadastrada ainda.
                             </td>
                         </tr>

@@ -20,6 +20,9 @@ namespace TreinamentosManager.Models
         [Display(Name = "Total de Alunos")]
         public int? TotalAlunos { get; set; }
 
+        [Display(Name = "Ativo")]
+        public bool Ativo { get; set; } = true;
+
         public ICollection<Turma> Turmas { get; set; } = new List<Turma>();
     }
 }

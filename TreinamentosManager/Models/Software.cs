@@ -10,12 +10,6 @@ namespace TreinamentosManager.Models
         [Display(Name = "Nome do Software")]
         public string Nome { get; set; }
 
-        [Display(Name = "Descrição")]
-        public string? Descricao { get; set; }
-
-        [Display(Name = "Versão")]
-        public string? Versao { get; set; }
-
         // Relacionamento com Turmas
         public ICollection<Turma> Turmas { get; set; } = new List<Turma>();
     }

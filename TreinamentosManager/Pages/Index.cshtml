@@ -73,7 +73,16 @@
 <div class="card shadow-sm mb-4">
     <div class="card-body">
         <h6 class="fw-bold mb-3"><i class="fas fa-chart-area me-2" style="color:#D79A00"></i>Evolução da Carga Horária por Mês</h6>
-        <canvas id="graficoAlocacao" height="100"></canvas>
+        <div class="mb-2">
+            <div class="btn-group btn-group-sm" role="group" id="filtroModalidade">
+                <button type="button" class="btn btn-outline-secondary active" data-modalidade="todos">Todos</button>
+                <button type="button" class="btn btn-outline-secondary" data-modalidade="Presencial">Presencial</button>
+                <button type="button" class="btn btn-outline-secondary" data-modalidade="Online">Online</button>
+            </div>
+        </div>
+        <div style="position:relative;height:280px">
+            <canvas id="graficoAlocacao"></canvas>
+        </div>
     </div>
 </div>
 
@@ -133,50 +142,49 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     const labels = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.GraficoLabels));
-    const historico = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.GraficoHistorico));
-    const tendencia = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.GraficoTendencia));
+    const dados = {
+        todos:      { hist: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.GraficoHistorico)),      tend: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.GraficoTendencia)) },
+        Presencial: { hist: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.GraficoPresencial)),     tend: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.GraficoPresencialTendencia)) },
+        Online:     { hist: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.GraficoOnline)),         tend: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.GraficoOnlineTendencia)) }
+    };
 
-    new Chart(document.getElementById('graficoAlocacao'), {
+    const ctx = document.getElementById('graficoAlocacao');
+    const chart = new Chart(ctx, {
         type: 'line',
-        data: {
-            labels: labels,
-            datasets: [
-                {
-                    label: 'Carga Horária (horas)',
-                    data: historico.map((v, i) => tendencia[i] === null ? v : null),
-                    borderColor: '#D79A00',
-                    backgroundColor: 'rgba(215,154,0,0.1)',
-                    fill: true,
-                    tension: 0.3,
-                    pointRadius: 4,
-                    spanGaps: true
-                },
-                {
-                    label: 'Tendência Futura',
-                    data: tendencia,
-                    borderColor: '#0d6efd',
-                    backgroundColor: 'rgba(13,110,253,0.05)',
-                    borderDash: [6, 4],
-                    fill: false,
-                    tension: 0.3,
-                    pointRadius: 4,
-                    spanGaps: true
-                }
-            ]
-        },
+        data: { labels, datasets: buildDatasets('todos') },
         options: {
             responsive: true,
-            plugins: {
-                legend: { position: 'top' },
-                tooltip: { mode: 'index', intersect: false }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    title: { display: true, text: 'Horas' }
-                }
-            }
+            maintainAspectRatio: false,
+            plugins: { legend: { position: 'top' }, tooltip: { mode: 'index', intersect: false } },
+            scales: { y: { beginAtZero: true, title: { display: true, text: 'Horas' } } }
         }
+    });
+
+    function buildDatasets(modalidade) {
+        const d = dados[modalidade];
+        return [
+            {
+                label: 'Carga Horária',
+                data: d.hist.map((v, i) => d.tend[i] !== null ? null : v),
+                borderColor: '#D79A00', backgroundColor: 'rgba(215,154,0,0.1)',
+                fill: true, tension: 0.3, pointRadius: 4, spanGaps: true
+            },
+            {
+                label: 'Tendência Futura',
+                data: d.tend,
+                borderColor: '#0d6efd', backgroundColor: 'rgba(13,110,253,0.05)',
+                borderDash: [6, 4], fill: false, tension: 0.3, pointRadius: 4, spanGaps: true
+            }
+        ];
+    }
+
+    document.querySelectorAll('#filtroModalidade button').forEach(btn => {
+        btn.addEventListener('click', function () {
+            document.querySelectorAll('#filtroModalidade button').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            chart.data.datasets = buildDatasets(this.dataset.modalidade);
+            chart.update();
+        });
     });
 </script>
 }

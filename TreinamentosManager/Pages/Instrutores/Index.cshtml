@@ -4,34 +4,63 @@
     ViewData["Title"] = "Instrutores";
 }
 
-<h1>Gerenciar Instrutores</h1>
-
-<p>
-    <a asp-page="Create" class="btn btn-primary">Adicionar Instrutor</a>
-</p>
-
-<table class="table">
-    <thead>
-        <tr>
-            <th>Nome</th>
-            <th>Email</th>
-            <th>Turmas Ativas</th>
-            <th>Ações</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model.Instrutores)
-        {
-            <tr>
-                <td>@Html.DisplayFor(modelItem => item.Nome)</td>
-                <td>@Html.DisplayFor(modelItem => item.Email)</td>
-                <td>@item.Turmas.Count(t => t.Fim > DateTime.Now)</td>
-                <td>
-                    <a asp-page="./Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning">Editar</a> |
-                    <a asp-page="./Details" asp-route-id="@item.Id" class="btn btn-sm btn-info">Detalhes</a> |
-                    <a asp-page="./Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger">Excluir</a>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+<div class="card shadow-sm">
+    <div class="card-header-dk d-flex justify-content-between align-items-center">
+        <h5 class="mb-0"><i class="fas fa-user-tie me-2"></i>Gerenciar Instrutores</h5>
+        <a asp-page="Create" class="btn btn-dk-primary btn-sm px-3">
+            <i class="fas fa-plus me-1"></i> Adicionar Instrutor
+        </a>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Status</th>
+                        <th>Nome</th>
+                        <th>Email</th>
+                        <th class="text-center">Turmas Ativas</th>
+                        <th class="text-center">Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Instrutores)
+                    {
+                        <tr class="@(!item.Ativo ? "table-secondary text-muted" : "")">
+                            <td>
+                                @if (item.Ativo)
+                                { <span class="badge bg-success">Ativo</span> }
+                                else
+                                { <span class="badge bg-secondary">Inativo</span> }
+                            </td>
+                            <td class="fw-500">@item.Nome</td>
+                            <td>@item.Email</td>
+                            <td class="text-center">
+                                <span class="badge" style="background:#D79A00">@item.Turmas.Count(t => t.Inicio <= DateTime.Now && t.Fim >= DateTime.Now)</span>
+                            </td>
+                            <td class="text-center">
+                                <a asp-page="./Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-warning" title="Editar">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a asp-page="./Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary" title="Detalhes">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a asp-page="./Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger" title="Excluir">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                    @if (!Model.Instrutores.Any())
+                    {
+                        <tr>
+                            <td colspan="5" class="text-center py-4 text-muted">
+                                <i class="fas fa-inbox fa-2x mb-2 d-block"></i>Nenhum instrutor cadastrado ainda.
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

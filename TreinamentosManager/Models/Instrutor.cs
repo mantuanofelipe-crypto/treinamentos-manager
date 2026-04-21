@@ -13,6 +13,9 @@ namespace TreinamentosManager.Models
         [EmailAddress]
         public string Email { get; set; }
 
+        [Display(Name = "Ativo")]
+        public bool Ativo { get; set; } = true;
+
         [Display(Name = "Expiração ACI")]
         [DataType(DataType.Date)]
         public DateTime? DataExpiracaoACI { get; set; }

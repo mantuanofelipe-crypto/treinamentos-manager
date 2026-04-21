@@ -17,28 +17,39 @@
                 <thead>
                     <tr>
                         <th>Nome</th>
-                        <th>Descrição</th>
-                        <th>Versão</th>
-                        <th class="text-center">Turmas Ativas</th>
+                        <th class="text-center">ACP</th>
+                        <th class="text-center">CH Concluído</th>
+                        <th class="text-center">CH Em Andamento</th>
+                        <th class="text-center">CH Futura</th>
                         <th class="text-center">Ações</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach (var item in Model.Softwares)
                     {
+                        var now = DateTime.Now;
+                        var chConcluido = item.Turmas.Where(t => t.Fim < now).Sum(t => t.CargaHoraria);
+                        var chAndamento = item.Turmas.Where(t => t.Inicio <= now && t.Fim >= now).Sum(t => t.CargaHoraria);
+                        var chFutura    = item.Turmas.Where(t => t.Inicio > now).Sum(t => t.CargaHoraria);
+                        var acpCount    = Model.ACPCounts.TryGetValue(item.Id, out var cnt) ? cnt : 0;
                         <tr>
-                            <td class="fw-bold">@Html.DisplayFor(m => item.Nome)</td>
-                            <td>@Html.DisplayFor(m => item.Descricao)</td>
-                            <td><span class="badge" style="background:#5A5A5A">@Html.DisplayFor(m => item.Versao)</span></td>
+                            <td class="fw-bold">@item.Nome</td>
                             <td class="text-center">
-                                <span class="badge" style="background:#D79A00">@item.Turmas.Count(t => t.Fim > DateTime.Now)</span>
+                                @if (acpCount > 0)
+                                {
+                                    <span class="badge bg-success">@acpCount instrutor@(acpCount > 1 ? "es" : "")</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted small">—</span>
+                                }
                             </td>
+                            <td class="text-center"><span class="badge bg-success">@chConcluido h</span></td>
+                            <td class="text-center"><span class="badge" style="background:#D79A00">@chAndamento h</span></td>
+                            <td class="text-center"><span class="badge bg-primary">@chFutura h</span></td>
                             <td class="text-center">
                                 <a asp-page="./Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-warning" title="Editar">
                                     <i class="fas fa-edit"></i>
-                                </a>
-                                <a asp-page="./Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary" title="Detalhes">
-                                    <i class="fas fa-eye"></i>
                                 </a>
                                 <a asp-page="./Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger" title="Excluir">
                                     <i class="fas fa-trash"></i>
@@ -49,7 +60,7 @@
                     @if (!Model.Softwares.Any())
                     {
                         <tr>
-                            <td colspan="5" class="text-center py-4 text-muted">
+                            <td colspan="6" class="text-center py-4 text-muted">
                                 <i class="fas fa-inbox fa-2x mb-2 d-block"></i>Nenhum software cadastrado ainda.
                             </td>
                         </tr>

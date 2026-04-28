@@ -85,10 +85,15 @@
                 <div id="datasTurma" class="d-grid gap-2">
                     @if (Model.DatasTurma.Any())
                     {
-                        foreach (var data in Model.DatasTurma)
+                        for (var i = 0; i < Model.DatasTurma.Count; i++)
                         {
+                            var data = Model.DatasTurma[i];
+                            var duracao = i < Model.DuracoesTurma.Count ? Model.DuracoesTurma[i] : 1;
                             <div class="input-group data-turma-item">
                                 <input name="DatasTurma" class="form-control" type="datetime-local" value="@(data.HasValue ? data.Value.ToString("yyyy-MM-ddTHH:mm") : "")" />
+                                <span class="input-group-text">Duração</span>
+                                <input name="DuracoesTurma" class="form-control" type="number" min="0.25" max="24" step="0.25" value="@(duracao ?? 1)" />
+                                <span class="input-group-text">h</span>
                                 <button type="button" class="btn btn-outline-danger remover-data" title="Remover data">
                                     <i class="fas fa-trash"></i>
                                 </button>
@@ -99,6 +104,9 @@
                     {
                         <div class="input-group data-turma-item">
                             <input name="DatasTurma" class="form-control" type="datetime-local" />
+                            <span class="input-group-text">Duração</span>
+                            <input name="DuracoesTurma" class="form-control" type="number" min="0.25" max="24" step="0.25" value="1" />
+                            <span class="input-group-text">h</span>
                             <button type="button" class="btn btn-outline-danger remover-data" title="Remover data">
                                 <i class="fas fa-trash"></i>
                             </button>
@@ -106,6 +114,7 @@
                     }
                 </div>
                 <span asp-validation-for="DatasTurma" class="text-danger small"></span>
+                <span asp-validation-for="DuracoesTurma" class="text-danger small d-block"></span>
                 <button type="button" id="adicionarData" class="btn btn-outline-secondary btn-sm mt-2">
                     <i class="fas fa-plus me-1"></i> Adicionar Data
                 </button>
@@ -180,6 +189,9 @@
             item.className = 'input-group data-turma-item';
             item.innerHTML = `
                 <input name="DatasTurma" class="form-control" type="datetime-local" />
+                <span class="input-group-text">Duração</span>
+                <input name="DuracoesTurma" class="form-control" type="number" min="0.25" max="24" step="0.25" value="1" />
+                <span class="input-group-text">h</span>
                 <button type="button" class="btn btn-outline-danger remover-data" title="Remover data">
                     <i class="fas fa-trash"></i>
                 </button>`;
@@ -192,6 +204,7 @@
             const items = document.querySelectorAll('.data-turma-item');
             if (items.length === 1) {
                 button.closest('.data-turma-item').querySelector('input').value = '';
+                button.closest('.data-turma-item').querySelector('input[name="DuracoesTurma"]').value = '1';
                 return;
             }
             button.closest('.data-turma-item').remove();

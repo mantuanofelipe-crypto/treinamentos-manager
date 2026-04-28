@@ -38,7 +38,7 @@
             <dd class="col-sm-9">
                 @if (Model.Turma.Datas.Any())
                 {
-                    @string.Join(", ", Model.Turma.Datas.OrderBy(d => d.Data).Select(d => d.Data.ToString("dd/MM/yyyy HH:mm")))
+                    @string.Join(", ", Model.Turma.Datas.OrderBy(d => d.Data).Select(d => $"{d.Data:dd/MM/yyyy HH:mm} ({d.DuracaoHoras:0.##}h)"))
                 }
                 else
                 {

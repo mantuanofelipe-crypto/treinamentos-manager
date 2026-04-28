@@ -62,11 +62,37 @@
                 <div class="text-muted small">Datas das Turmas</div>
                 @if (Model.Turma.Datas.Any())
                 {
-                    <div class="d-flex flex-wrap gap-2 mt-1">
+                    <div class="table-responsive mt-1">
+                        <table class="table table-sm align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Início</th>
+                                    <th>Duração</th>
+                                    <th>Fim</th>
+                                    <th>Teams</th>
+                                </tr>
+                            </thead>
+                            <tbody>
                         @foreach (var data in Model.Turma.Datas.OrderBy(d => d.Data))
                         {
-                            <span class="badge bg-light text-dark border">@data.Data.ToString("dd/MM/yyyy HH:mm")</span>
+                                <tr>
+                                    <td>@data.Data.ToString("dd/MM/yyyy HH:mm")</td>
+                                    <td>@data.DuracaoHoras.ToString("0.##") h</td>
+                                    <td>@data.Fim.ToString("dd/MM/yyyy HH:mm")</td>
+                                    <td>
+                                        @if (!string.IsNullOrWhiteSpace(data.TeamsMeetingUrl))
+                                        {
+                                            <a href="@data.TeamsMeetingUrl" target="_blank" rel="noopener">Abrir reunião</a>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">Não criada</span>
+                                        }
+                                    </td>
+                                </tr>
                         }
+                            </tbody>
+                        </table>
                     </div>
                 }
                 else

@@ -1,4 +1,4 @@
-using Microsoft.Graph;
+using Azure.Identity;
 using Microsoft.Graph.Models;
 using TreinamentosManager.Models;
 
@@ -6,45 +6,75 @@ namespace TreinamentosManager.Services
 {
     public class TeamsService
     {
-        // Nota: Para produção, seria necessário configurar autenticação OAuth com Azure AD
-        // Este é um exemplo simplificado
-        public async Task<string> CriarReuniaoTeams(Turma turma)
+        private readonly IConfiguration _configuration;
+        private readonly ILogger<TeamsService> _logger;
+
+        public TeamsService(IConfiguration configuration, ILogger<TeamsService> logger)
         {
-            // Simulação - em produção, usar Graph API autenticado
-            var meetingUrl = $"https://teams.microsoft.com/l/meetup-join/19%3ameeting_{Guid.NewGuid()}%40thread.v2/0?context=%7b%22Tid%22%3a%22{ Guid.NewGuid()}%22%2c%22Oid%22%3a%22{Guid.NewGuid()}%22%7d";
+            _configuration = configuration;
+            _logger = logger;
+        }
 
-            // Aqui seria o código real:
-            /*
-            var graphClient = new GraphServiceClient(authProvider);
+        public bool EstaConfigurado =>
+            !string.IsNullOrWhiteSpace(_configuration["Teams:TenantId"]) &&
+            !string.IsNullOrWhiteSpace(_configuration["Teams:ClientId"]) &&
+            !string.IsNullOrWhiteSpace(_configuration["Teams:ClientSecret"]) &&
+            !string.IsNullOrWhiteSpace(_configuration["Teams:OrganizerUserId"]);
 
-            var onlineMeeting = new OnlineMeeting
+        public async Task CriarReunioesTeams(Turma turma)
+        {
+            if (!EstaConfigurado)
             {
-                StartDateTime = turma.Inicio,
-                EndDateTime = turma.Fim,
-                Subject = $"Treinamento: {turma.Software?.Nome ?? "Software"} - {turma.Cliente?.Nome ?? "Cliente"}",
-                Participants = new MeetingParticipants
+                _logger.LogWarning("Microsoft Teams nao esta configurado. As reunioes nao foram criadas.");
+                return;
+            }
+
+            var credential = new ClientSecretCredential(
+                _configuration["Teams:TenantId"],
+                _configuration["Teams:ClientId"],
+                _configuration["Teams:ClientSecret"]);
+
+            var graphClient = new Microsoft.Graph.GraphServiceClient(
+                credential,
+                new[] { "https://graph.microsoft.com/.default" });
+
+            var organizerUserId = _configuration["Teams:OrganizerUserId"]!;
+
+            foreach (var data in turma.Datas.OrderBy(d => d.Data))
+            {
+                if (!string.IsNullOrWhiteSpace(data.TeamsMeetingUrl))
+                    continue;
+
+                var onlineMeeting = new OnlineMeeting
                 {
-                    Attendees = new List<MeetingParticipantInfo>
-                    {
-                        new MeetingParticipantInfo
-                        {
-                            Identity = new IdentitySet
-                            {
-                                User = new Identity
-                                {
-                                    Id = turma.InstrutorId
-                                }
-                            }
-                        }
-                    }
+                    StartDateTime = data.Data,
+                    EndDateTime = data.Fim,
+                    Subject = CriarAssunto(turma, data)
+                };
+
+                try
+                {
+                    var result = await graphClient.Users[organizerUserId].OnlineMeetings.PostAsync(onlineMeeting);
+                    data.TeamsMeetingId = result?.Id;
+                    data.TeamsMeetingUrl = result?.JoinWebUrl;
                 }
-            };
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Falha ao criar reuniao do Teams para a turma {TurmaId} em {Data}.", turma.Id, data.Data);
+                }
+            }
 
-            var result = await graphClient.Me.OnlineMeetings.Request().AddAsync(onlineMeeting);
-            return result.JoinWebUrl;
-            */
+            turma.TeamsMeetingUrl = turma.Datas
+                .OrderBy(d => d.Data)
+                .Select(d => d.TeamsMeetingUrl)
+                .FirstOrDefault(url => !string.IsNullOrWhiteSpace(url));
+        }
 
-            return meetingUrl;
+        private static string CriarAssunto(Turma turma, TurmaData data)
+        {
+            var software = turma.Software?.Nome ?? "Treinamento";
+            var cliente = turma.Cliente?.Nome ?? "Cliente";
+            return $"{software} - {cliente} ({data.Data:dd/MM/yyyy HH:mm})";
         }
     }
 }

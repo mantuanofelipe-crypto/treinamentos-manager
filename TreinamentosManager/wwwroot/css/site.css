@@ -25,6 +25,7 @@
 html {
     font-size: 14px;
     font-family: 'Roboto', sans-serif;
+    min-height: 100%;
 }
 
 @media (min-width: 768px) {
@@ -35,6 +36,14 @@ body {
     background-color: var(--dk-neutro1);
     color: var(--dk-grafite);
     font-family: 'Roboto', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+.page-content {
+    flex: 1 0 auto;
 }
 
 /* ── NAVBAR ── */
@@ -198,6 +207,7 @@ body {
     background-color: var(--dk-grafite);
     color: rgba(255,255,255,0.6);
     padding: 1rem 0;
+    flex-shrink: 0;
 }
 
 .footer a { color: var(--dk-mostarda); }

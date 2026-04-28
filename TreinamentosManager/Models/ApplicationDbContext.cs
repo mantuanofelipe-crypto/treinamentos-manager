@@ -26,6 +26,10 @@ namespace TreinamentosManager.Models
             builder.Entity<Turma>()
                 .Property(t => t.TipoCliente)
                 .HasDefaultValue("Turmas Gerenciável");
+
+            builder.Entity<TurmaData>()
+                .Property(t => t.DuracaoHoras)
+                .HasDefaultValue(1m);
         }
     }
 }

@@ -3,16 +3,19 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using TreinamentosManager.Models;
+using TreinamentosManager.Services;
 
 namespace TreinamentosManager.Pages.Turmas
 {
     public class EditModel : PageModel
     {
         private readonly ApplicationDbContext _context;
+        private readonly TeamsService _teamsService;
 
-        public EditModel(ApplicationDbContext context)
+        public EditModel(ApplicationDbContext context, TeamsService teamsService)
         {
             _context = context;
+            _teamsService = teamsService;
         }
 
         [BindProperty]
@@ -21,30 +24,35 @@ namespace TreinamentosManager.Pages.Turmas
         [BindProperty]
         public List<DateTime?> DatasTurma { get; set; } = new();
 
+        [BindProperty]
+        public List<decimal?> DuracoesTurma { get; set; } = new();
+
         public async Task<IActionResult> OnGetAsync(int id)
         {
             var turma = await _context.Turmas
                 .Include(t => t.Datas)
                 .FirstOrDefaultAsync(t => t.Id == id);
-            if (turma == null) return NotFound();
+
+            if (turma == null)
+                return NotFound();
 
             Turma = turma;
-            DatasTurma = turma.Datas.OrderBy(d => d.Data).Select(d => (DateTime?)d.Data).ToList();
+            var datas = turma.Datas.OrderBy(d => d.Data).ToList();
+            DatasTurma = datas.Select(d => (DateTime?)d.Data).ToList();
+            DuracoesTurma = datas.Select(d => (decimal?)d.DuracaoHoras).ToList();
             CarregarViewData();
             return Page();
         }
 
         public async Task<IActionResult> OnPostAsync()
         {
-            var datasSelecionadas = DatasTurma
-                .Where(d => d.HasValue)
-                .Select(d => d!.Value)
-                .Distinct()
-                .OrderBy(d => d)
-                .ToList();
+            var encontros = MontarEncontros();
 
-            if (!datasSelecionadas.Any())
+            if (!encontros.Any())
                 ModelState.AddModelError(nameof(DatasTurma), "Informe pelo menos uma data da turma.");
+
+            if (encontros.Any(e => e.DuracaoHoras <= 0))
+                ModelState.AddModelError(nameof(DuracoesTurma), "A duração de cada aula deve ser maior que zero.");
 
             if (!ModelState.IsValid)
             {
@@ -55,7 +63,9 @@ namespace TreinamentosManager.Pages.Turmas
             var turma = await _context.Turmas
                 .Include(t => t.Datas)
                 .FirstOrDefaultAsync(t => t.Id == Turma.Id);
-            if (turma == null) return NotFound();
+
+            if (turma == null)
+                return NotFound();
 
             turma.IdAutodesk = Turma.IdAutodesk;
             turma.CargaHoraria = Turma.CargaHoraria;
@@ -68,12 +78,32 @@ namespace TreinamentosManager.Pages.Turmas
             turma.DiasDaSemana = Turma.DiasDaSemana;
             turma.InstrutorId = string.IsNullOrEmpty(Turma.InstrutorId) ? null : Turma.InstrutorId;
 
+            var encontrosAtualizados = encontros.Select(encontro =>
+            {
+                var existente = turma.Datas.FirstOrDefault(data =>
+                    data.Data == encontro.Data &&
+                    data.DuracaoHoras == encontro.DuracaoHoras);
+
+                if (existente == null)
+                    return encontro;
+
+                encontro.TeamsMeetingId = existente.TeamsMeetingId;
+                encontro.TeamsMeetingUrl = existente.TeamsMeetingUrl;
+                return encontro;
+            }).ToList();
+
             _context.TurmaDatas.RemoveRange(turma.Datas);
-            turma.Datas = datasSelecionadas
-                .Select(data => new TurmaData { TurmaId = turma.Id, Data = data })
-                .ToList();
+            turma.Datas = encontrosAtualizados;
 
             await _context.SaveChangesAsync();
+
+            await _context.Entry(turma).Reference(t => t.Cliente).LoadAsync();
+            await _context.Entry(turma).Reference(t => t.Software).LoadAsync();
+            await _context.Entry(turma).Reference(t => t.Instrutor).LoadAsync();
+
+            await _teamsService.CriarReunioesTeams(turma);
+            await _context.SaveChangesAsync();
+
             return RedirectToPage("./Index");
         }
 
@@ -82,6 +112,29 @@ namespace TreinamentosManager.Pages.Turmas
             ViewData["InstrutorId"] = new SelectList(_context.Instrutores.Where(i => i.Ativo).OrderBy(i => i.Nome), "Id", "Nome");
             ViewData["ClienteId"] = new SelectList(_context.Clientes.Where(c => c.Ativo).OrderBy(c => c.Nome), "Id", "Nome");
             ViewData["SoftwareId"] = new SelectList(_context.Softwares.OrderBy(s => s.Nome), "Id", "Nome");
+        }
+
+        private List<TurmaData> MontarEncontros()
+        {
+            return DatasTurma
+                .Select((data, index) => new
+                {
+                    Data = data,
+                    Duracao = index < DuracoesTurma.Count ? DuracoesTurma[index] : null
+                })
+                .Where(item => item.Data.HasValue)
+                .GroupBy(item => item.Data!.Value)
+                .Select(group =>
+                {
+                    var item = group.First();
+                    return new TurmaData
+                    {
+                        Data = item.Data!.Value,
+                        DuracaoHoras = item.Duracao.GetValueOrDefault(1)
+                    };
+                })
+                .OrderBy(data => data.Data)
+                .ToList();
         }
     }
 }

@@ -59,6 +59,7 @@
                 <thead>
                     <tr>
                         <th>Status</th>
+                        <th>Nome da Turma</th>
                         <th>Tipo de Cliente</th>
                         <th>Conformidade</th>
                         <th>Convite</th>
@@ -97,6 +98,7 @@
                                     <i class="fas @icon me-1"></i>@item.Status
                                 </span>
                             </td>
+                            <td class="fw-semibold">@(string.IsNullOrWhiteSpace(item.Nome) ? item.Software?.Nome : item.Nome)</td>
                             <td>@item.TipoCliente</td>
                             <td>
                                 @{
@@ -173,7 +175,7 @@
                     @if (!Model.Turmas.Any())
                     {
                         <tr>
-                            <td colspan="14" class="text-center py-4 text-muted">
+                            <td colspan="15" class="text-center py-4 text-muted">
                                 <i class="fas fa-inbox fa-2x mb-2 d-block"></i>Nenhuma turma encontrada.
                             </td>
                         </tr>

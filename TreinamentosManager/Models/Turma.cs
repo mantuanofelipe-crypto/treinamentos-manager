@@ -23,6 +23,10 @@ namespace TreinamentosManager.Models
 
         public string? IdAutodesk { get; set; }
 
+        [Required]
+        [Display(Name = "Nome da Turma")]
+        public string Nome { get; set; } = string.Empty;
+
         [Display(Name = "Modalidade")]
         public string Modalidade { get; set; } = "Presencial";
 

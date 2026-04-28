@@ -16,6 +16,10 @@
     <div class="card-body p-4">
         <div class="row g-3">
             <div class="col-md-4">
+                <div class="text-muted small">Nome da Turma</div>
+                <div class="fw-semibold">@(string.IsNullOrWhiteSpace(Model.Turma.Nome) ? Model.Turma.Software?.Nome : Model.Turma.Nome)</div>
+            </div>
+            <div class="col-md-4">
                 <div class="text-muted small">ID Autodesk</div>
                 <div class="fw-semibold">@(Model.Turma.IdAutodesk ?? "-")</div>
             </div>

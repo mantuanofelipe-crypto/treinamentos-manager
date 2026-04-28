@@ -65,6 +65,7 @@ namespace TreinamentosManager.Pages.Turmas
                 return NotFound();
 
             turma.IdAutodesk = Turma.IdAutodesk;
+            turma.Nome = Turma.Nome;
             turma.CargaHoraria = Turma.CargaHoraria;
             turma.Modalidade = Turma.Modalidade;
             turma.TipoCliente = Turma.TipoCliente;

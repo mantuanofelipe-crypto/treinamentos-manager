@@ -16,6 +16,9 @@
         </div>
 
         <dl class="row mb-0">
+            <dt class="col-sm-3">Nome da Turma</dt>
+            <dd class="col-sm-9">@(string.IsNullOrWhiteSpace(Model.Turma.Nome) ? Model.Turma.Software?.Nome : Model.Turma.Nome)</dd>
+
             <dt class="col-sm-3">ID Autodesk</dt>
             <dd class="col-sm-9">@(Model.Turma.IdAutodesk ?? "-")</dd>
 

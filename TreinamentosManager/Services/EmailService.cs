@@ -18,15 +18,18 @@ namespace TreinamentosManager.Services
         }
 
         public bool EstaConfigurado =>
-            SmtpConfigurado ||
+            SmtpHabilitado ||
             ResendConfigurado;
 
         private bool ResendConfigurado =>
             ValorConfigurado("Resend:ApiKey") &&
             ValorConfigurado("Resend:FromEmail");
 
+        private bool SmtpHabilitado =>
+            string.Equals(_configuration["Smtp:Enabled"], "true", StringComparison.OrdinalIgnoreCase);
+
         private bool SmtpConfigurado =>
-            string.Equals(_configuration["Smtp:Enabled"], "true", StringComparison.OrdinalIgnoreCase) &&
+            SmtpHabilitado &&
             ValorConfigurado("Smtp:Host") &&
             ValorConfigurado("Smtp:Port") &&
             ValorConfigurado("Smtp:FromEmail");
@@ -35,7 +38,7 @@ namespace TreinamentosManager.Services
         {
             var pendentes = new List<string>();
 
-            if (string.Equals(_configuration["Smtp:Enabled"], "true", StringComparison.OrdinalIgnoreCase) && !SmtpConfigurado)
+            if (SmtpHabilitado && !SmtpConfigurado)
             {
                 AdicionarSePendente(pendentes, "Smtp:Host", "Smtp__Host");
                 AdicionarSePendente(pendentes, "Smtp:Port", "Smtp__Port");
@@ -61,8 +64,11 @@ namespace TreinamentosManager.Services
             if (!EstaConfigurado)
                 throw new InvalidOperationException($"Email não configurado. Configure SMTP no Railway com Smtp__Enabled=true, ou configure Resend. Pendentes: {string.Join(", ", ObterVariaveisPendentes())}.");
 
-            if (SmtpConfigurado)
+            if (SmtpHabilitado)
             {
+                if (!SmtpConfigurado)
+                    throw new InvalidOperationException($"SMTP habilitado, mas incompleto. Configure no Railway: {string.Join(", ", ObterVariaveisPendentes())}.");
+
                 await EnviarViaSmtpAsync(destinatarios, assunto, corpo, anexos, corpoHtml);
                 return;
             }

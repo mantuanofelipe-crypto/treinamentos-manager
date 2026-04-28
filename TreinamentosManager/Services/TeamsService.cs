@@ -16,10 +16,10 @@ namespace TreinamentosManager.Services
         }
 
         public bool EstaConfigurado =>
-            !string.IsNullOrWhiteSpace(_configuration["Teams:TenantId"]) &&
-            !string.IsNullOrWhiteSpace(_configuration["Teams:ClientId"]) &&
-            !string.IsNullOrWhiteSpace(_configuration["Teams:ClientSecret"]) &&
-            !string.IsNullOrWhiteSpace(_configuration["Teams:OrganizerUserId"]);
+            ValorConfigurado("Teams:TenantId") &&
+            ValorConfigurado("Teams:ClientId") &&
+            ValorConfigurado("Teams:ClientSecret") &&
+            ValorConfigurado("Teams:OrganizerUserId");
 
         public async Task CriarReunioesTeams(Turma turma)
         {
@@ -29,16 +29,27 @@ namespace TreinamentosManager.Services
                 return;
             }
 
-            var credential = new ClientSecretCredential(
-                _configuration["Teams:TenantId"],
-                _configuration["Teams:ClientId"],
-                _configuration["Teams:ClientSecret"]);
+            Microsoft.Graph.GraphServiceClient graphClient;
+            string organizerUserId;
 
-            var graphClient = new Microsoft.Graph.GraphServiceClient(
-                credential,
-                new[] { "https://graph.microsoft.com/.default" });
+            try
+            {
+                var credential = new ClientSecretCredential(
+                    _configuration["Teams:TenantId"],
+                    _configuration["Teams:ClientId"],
+                    _configuration["Teams:ClientSecret"]);
 
-            var organizerUserId = _configuration["Teams:OrganizerUserId"]!;
+                graphClient = new Microsoft.Graph.GraphServiceClient(
+                    credential,
+                    new[] { "https://graph.microsoft.com/.default" });
+
+                organizerUserId = _configuration["Teams:OrganizerUserId"]!;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Configuracao do Microsoft Teams invalida. Verifique TenantId, ClientId, ClientSecret e OrganizerUserId.");
+                return;
+            }
 
             foreach (var data in turma.Datas.OrderBy(d => d.Data))
             {
@@ -75,6 +86,17 @@ namespace TreinamentosManager.Services
             var software = turma.Software?.Nome ?? "Treinamento";
             var cliente = turma.Cliente?.Nome ?? "Cliente";
             return $"{software} - {cliente} ({data.Data:dd/MM/yyyy HH:mm})";
+        }
+
+        private bool ValorConfigurado(string chave)
+        {
+            var valor = _configuration[chave];
+
+            if (string.IsNullOrWhiteSpace(valor))
+                return false;
+
+            return !valor.StartsWith("SEU_", StringComparison.OrdinalIgnoreCase) &&
+                   !valor.StartsWith("ID_DO_", StringComparison.OrdinalIgnoreCase);
         }
     }
 }

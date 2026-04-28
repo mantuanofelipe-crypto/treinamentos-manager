@@ -300,3 +300,8 @@ body {
     font-size: 0.75rem;
     color: var(--dk-grafite2);
 }
+
+.comunicado-textarea {
+    font-family: Consolas, "Courier New", monospace;
+    line-height: 1.45;
+}

@@ -87,8 +87,11 @@ namespace TreinamentosManager.Pages.Turmas
 
             if (!_teamsService.EstaConfigurado)
             {
+                var pendentes = _teamsService.ObterVariaveisPendentes();
                 TipoMensagem = "warning";
-                Mensagem = "Microsoft Teams ainda não está configurado nas variáveis do Railway.";
+                Mensagem = pendentes.Any()
+                    ? $"Microsoft Teams ainda não está configurado. Verifique no Railway: {string.Join(", ", pendentes)}."
+                    : "Microsoft Teams ainda não está configurado nas variáveis do Railway.";
                 return RedirectToPage();
             }
 

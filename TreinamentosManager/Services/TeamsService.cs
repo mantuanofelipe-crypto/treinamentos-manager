@@ -21,6 +21,18 @@ namespace TreinamentosManager.Services
             ValorConfigurado("Teams:ClientSecret") &&
             ValorConfigurado("Teams:OrganizerUserId");
 
+        public IReadOnlyList<string> ObterVariaveisPendentes()
+        {
+            var pendentes = new List<string>();
+
+            AdicionarSePendente(pendentes, "Teams:TenantId", "Teams__TenantId");
+            AdicionarSePendente(pendentes, "Teams:ClientId", "Teams__ClientId");
+            AdicionarSePendente(pendentes, "Teams:ClientSecret", "Teams__ClientSecret");
+            AdicionarSePendente(pendentes, "Teams:OrganizerUserId", "Teams__OrganizerUserId");
+
+            return pendentes;
+        }
+
         public async Task CriarReunioesTeams(Turma turma)
         {
             if (!EstaConfigurado)
@@ -97,6 +109,12 @@ namespace TreinamentosManager.Services
 
             return !valor.StartsWith("SEU_", StringComparison.OrdinalIgnoreCase) &&
                    !valor.StartsWith("ID_DO_", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private void AdicionarSePendente(List<string> pendentes, string chave, string nomeVariavel)
+        {
+            if (!ValorConfigurado(chave))
+                pendentes.Add(nomeVariavel);
         }
     }
 }

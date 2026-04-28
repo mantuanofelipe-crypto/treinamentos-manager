@@ -26,6 +26,7 @@ namespace TreinamentosManager.Services
             ValorConfigurado("Resend:FromEmail");
 
         private bool SmtpConfigurado =>
+            string.Equals(_configuration["Smtp:Enabled"], "true", StringComparison.OrdinalIgnoreCase) &&
             ValorConfigurado("Smtp:Host") &&
             ValorConfigurado("Smtp:Port") &&
             ValorConfigurado("Smtp:FromEmail");
@@ -40,7 +41,7 @@ namespace TreinamentosManager.Services
                 AdicionarSePendente(pendentes, "Resend:FromEmail", "Resend__FromEmail");
             }
 
-            if (!SmtpConfigurado)
+            if (string.Equals(_configuration["Smtp:Enabled"], "true", StringComparison.OrdinalIgnoreCase) && !SmtpConfigurado)
             {
                 AdicionarSePendente(pendentes, "Smtp:Host", "Smtp__Host");
                 AdicionarSePendente(pendentes, "Smtp:Port", "Smtp__Port");
@@ -53,7 +54,7 @@ namespace TreinamentosManager.Services
         public async Task EnviarComunicadoAsync(IEnumerable<string> destinatarios, string assunto, string corpo)
         {
             if (!EstaConfigurado)
-                throw new InvalidOperationException($"Email não configurado. Use Resend ou SMTP. Verifique: {string.Join(", ", ObterVariaveisPendentes())}");
+                throw new InvalidOperationException($"Email não configurado. Configure Resend no Railway: {string.Join(", ", ObterVariaveisPendentes())}. SMTP direto só será usado se Smtp__Enabled=true.");
 
             if (ResendConfigurado)
             {

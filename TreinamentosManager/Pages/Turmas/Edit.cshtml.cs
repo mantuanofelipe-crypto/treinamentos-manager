@@ -3,19 +3,16 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using TreinamentosManager.Models;
-using TreinamentosManager.Services;
 
 namespace TreinamentosManager.Pages.Turmas
 {
     public class EditModel : PageModel
     {
         private readonly ApplicationDbContext _context;
-        private readonly TeamsService _teamsService;
 
-        public EditModel(ApplicationDbContext context, TeamsService teamsService)
+        public EditModel(ApplicationDbContext context)
         {
             _context = context;
-            _teamsService = teamsService;
         }
 
         [BindProperty]
@@ -95,13 +92,6 @@ namespace TreinamentosManager.Pages.Turmas
             _context.TurmaDatas.RemoveRange(turma.Datas);
             turma.Datas = encontrosAtualizados;
 
-            await _context.SaveChangesAsync();
-
-            await _context.Entry(turma).Reference(t => t.Cliente).LoadAsync();
-            await _context.Entry(turma).Reference(t => t.Software).LoadAsync();
-            await _context.Entry(turma).Reference(t => t.Instrutor).LoadAsync();
-
-            await _teamsService.CriarReunioesTeams(turma);
             await _context.SaveChangesAsync();
 
             return RedirectToPage("./Index");

@@ -43,20 +43,12 @@ namespace TreinamentosManager.Models
         {
             get
             {
-                var valores = new[] { ConformidadeInstrutor, ConformidadeCoordenacao }
-                    .Where(v => v.HasValue)
-                    .Select(v => v!.Value)
-                    .ToList();
-
-                if (!valores.Any())
+                if (!ConformidadeInstrutor.HasValue || !ConformidadeCoordenacao.HasValue)
                     return null;
 
-                return valores.Average();
+                return Math.Round((ConformidadeInstrutor.Value + ConformidadeCoordenacao.Value) / 2m, 1);
             }
         }
-
-        public decimal ConformidadeTecnicaSoma =>
-            (ConformidadeInstrutor ?? 0m) + (ConformidadeCoordenacao ?? 0m);
 
         private static decimal? CalcularPercentual(IEnumerable<string> status)
         {

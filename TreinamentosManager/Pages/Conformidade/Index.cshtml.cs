@@ -31,6 +31,7 @@ namespace TreinamentosManager.Pages.Conformidade
                 .Include(t => t.Software)
                 .Include(t => t.Instrutor)
                 .Include(t => t.ConformidadeDetalhes)
+                .Where(t => t.TipoCliente == "Turmas Abertas")
                 .OrderByDescending(t => t.Inicio)
                 .ToListAsync();
         }

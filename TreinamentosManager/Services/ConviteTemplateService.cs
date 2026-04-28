@@ -73,63 +73,75 @@ namespace TreinamentosManager.Services
             var dados = CriarDados(turma);
 
             return $"""
-                <div style="margin:0;padding:0;background:#f3f4f6;">
-                  <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="border-collapse:collapse;background:#f3f4f6;margin:0;padding:0;">
+                <div style="margin:0;padding:0;background:#ececec;">
+                  <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="border-collapse:collapse;background:#ececec;margin:0;padding:0;">
                     <tr>
-                      <td align="center" style="padding:24px 12px;">
-                        <table role="presentation" cellpadding="0" cellspacing="0" width="760" style="border-collapse:collapse;width:760px;max-width:100%;background:#ffffff;font-family:Arial,Helvetica,sans-serif;color:#4f4f4f;">
+                      <td align="center" style="padding:18px 10px;">
+                        <table role="presentation" cellpadding="0" cellspacing="0" width="760" style="border-collapse:collapse;width:760px;max-width:100%;background:#ffffff;font-family:Arial,Helvetica,sans-serif;color:#555555;border:1px solid #dedede;">
                           <tr>
-                            <td style="padding:0;background:#ffffff;">
-                              <img src="cid:convite-hero" alt="" width="760" style="display:block;width:100%;max-width:760px;height:auto;border:0;">
+                            <td style="padding:28px 38px 8px 38px;background:#ffffff;">
+                              <img src="cid:convite-logo" alt="Deskgraphics Consulting" width="310" style="display:block;width:310px;max-width:74%;height:auto;border:0;margin:0 auto 22px auto;">
+                              <img src="cid:convite-apresenta" alt="Apresenta" width="220" style="display:block;width:220px;max-width:60%;height:auto;border:0;margin:0 auto;">
                             </td>
                           </tr>
                           <tr>
-                            <td style="padding:28px 34px 18px 34px;">
-                              <img src="cid:convite-logo" alt="Deskgraphics Consulting" width="300" style="display:block;width:300px;max-width:72%;height:auto;border:0;margin:0 0 22px 0;">
-                              <div style="font-size:34px;line-height:36px;font-weight:700;color:#585858;letter-spacing:0;text-transform:uppercase;margin:0 0 18px 0;">Convite<br>de treinamento</div>
-                              <div style="font-size:15px;line-height:23px;color:#555555;margin:0 0 18px 0;">
-                                Caro(a) aluno(a), você foi inscrito(a) para participar do treinamento de
-                                <strong style="color:#343434;">{Html(dados.Curso)}</strong>.
-                                Venha participar dessa jornada de conhecimento com a <strong>Deskgraphics</strong>.
-                                Para esclarecimento de dúvidas contatar:
-                                <a href="mailto:treinamento@deskgraphics.com.br" style="color:#6b6b6b;text-decoration:underline;">treinamento@deskgraphics.com.br</a>.
-                              </div>
-                            </td>
-                          </tr>
-                          <tr>
-                            <td style="padding:0 34px 0 34px;">
+                            <td style="padding:22px 38px 10px 38px;background:#ffffff;">
                               <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="border-collapse:collapse;">
                                 <tr>
-                                  <td style="background:#f2d600;height:12px;line-height:12px;font-size:1px;">&nbsp;</td>
-                                </tr>
-                              </table>
-                            </td>
-                          </tr>
-                          <tr>
-                            <td style="padding:24px 34px 8px 34px;">
-                              <div style="font-size:18px;line-height:22px;font-weight:700;color:#565656;text-transform:uppercase;margin:0 0 14px 0;">Treinamento ao vivo on-line</div>
-                              <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="border-collapse:collapse;">
-                                <tr>
-                                  <td style="font-size:15px;line-height:22px;color:#555555;padding:0 0 14px 0;">
-                                    <strong style="color:#343434;">{Html(dados.Instrutor)}</strong>
-                                    <span style="color:#888888;">..................................................</span>
-                                    Instrutor Técnico Especialista
+                                  <td valign="top" width="64%" style="padding:0 28px 0 0;">
+                                    <div style="font-size:34px;line-height:36px;font-weight:700;color:#565656;letter-spacing:0;text-transform:uppercase;margin:0 0 18px 0;">Convite<br>de treinamento</div>
+                                    <div style="font-size:15px;line-height:23px;color:#555555;margin:0 0 18px 0;">
+                                      Caro(a) aluno(a), você foi inscrito(a) para participar do treinamento de
+                                      <strong style="color:#222222;">{Html(dados.Curso)}</strong>.
+                                      Venha participar dessa jornada de conhecimento com a <strong>Deskgraphics</strong>.
+                                      Para esclarecimento de dúvidas contatar:
+                                      <a href="mailto:treinamento@deskgraphics.com.br" style="color:#5d5d5d;text-decoration:underline;">treinamento@deskgraphics.com.br</a>.
+                                    </div>
                                   </td>
-                                </tr>
-                                <tr>
-                                  <td style="font-size:15px;line-height:22px;color:#555555;padding:0 0 14px 0;">
-                                    Aulas gravadas disponíveis em até 24 horas na nossa plataforma de vídeos <strong>DeskHub</strong>.
-                                    Acesse: <a href="https://deskhub.deskgraphics.com.br" style="color:#6b6b6b;text-decoration:underline;">https://deskhub.deskgraphics.com.br</a>
+                                  <td valign="top" width="36%" style="padding:3px 0 0 0;">
+                                    <img src="cid:convite-hero" alt="" width="245" style="display:block;width:245px;max-width:100%;height:auto;border:0;">
                                   </td>
                                 </tr>
                               </table>
                             </td>
                           </tr>
                           <tr>
-                            <td style="padding:8px 34px 0 34px;">
+                            <td style="padding:2px 38px 0 38px;">
+                              <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="border-collapse:collapse;">
+                                <tr>
+                                  <td style="background:#f2d600;height:10px;line-height:10px;font-size:1px;">&nbsp;</td>
+                                </tr>
+                              </table>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td style="padding:26px 38px 8px 38px;">
+                              <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="border-collapse:collapse;">
+                                <tr>
+                                  <td valign="top" width="75%" style="padding:0 24px 0 0;">
+                                    <div style="font-size:18px;line-height:22px;font-weight:700;color:#555555;text-transform:uppercase;margin:0 0 16px 0;">Treinamento ao vivo on-line</div>
+                                    <div style="font-size:15px;line-height:22px;color:#555555;margin:0 0 14px 0;">
+                                      <strong style="color:#111111;">{Html(dados.Instrutor)}</strong>
+                                      <span style="color:#8a8a8a;">........................................</span>
+                                      Instrutor Técnico Especialista
+                                    </div>
+                                    <div style="font-size:15px;line-height:22px;color:#555555;margin:0 0 14px 0;">
+                                      Aulas gravadas disponíveis em até 24 horas na nossa plataforma de vídeos <strong>DeskHub</strong>.
+                                      Acesse: <a href="https://deskhub.deskgraphics.com.br" style="color:#5d5d5d;text-decoration:underline;">https://deskhub.deskgraphics.com.br</a>
+                                    </div>
+                                  </td>
+                                  <td valign="top" width="25%" align="right" style="padding:0;">
+                                    <img src="cid:convite-agenda" alt="Agenda" width="80" style="display:block;width:80px;max-width:100%;height:auto;border:0;">
+                                  </td>
+                                </tr>
+                              </table>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td style="padding:6px 38px 0 38px;">
                               <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="border-collapse:collapse;background:#5c5c5c;">
                                 <tr>
-                                  <td style="padding:18px 20px;color:#ffffff;">
+                                  <td style="padding:17px 20px;color:#ffffff;">
                                     <div style="font-size:14px;line-height:18px;font-weight:700;text-transform:uppercase;margin:0 0 8px 0;">Será transmitido pela plataforma Microsoft Teams</div>
                                     <div style="font-size:18px;line-height:24px;font-weight:700;margin:0;">{Html(dados.DiasSemana)} das {Html(dados.HoraInicio)} às {Html(dados.HoraFim)}</div>
                                   </td>
@@ -138,7 +150,7 @@ namespace TreinamentosManager.Services
                             </td>
                           </tr>
                           <tr>
-                            <td style="padding:22px 34px 12px 34px;">
+                            <td style="padding:22px 38px 12px 38px;">
                               <div style="font-size:18px;line-height:22px;font-weight:700;color:#565656;text-transform:uppercase;margin:0 0 10px 0;">Disponibilidade das gravações</div>
                               <div style="font-size:15px;line-height:23px;color:#555555;margin:0 0 16px 0;">
                                 Carga horária total do treinamento: <strong>{Html(dados.CargaHoraria)}</strong><br>
@@ -151,7 +163,7 @@ namespace TreinamentosManager.Services
                             </td>
                           </tr>
                           <tr>
-                            <td style="padding:8px 34px 30px 34px;">
+                            <td style="padding:6px 38px 28px 38px;">
                               <img src="cid:convite-autodesk" alt="Autodesk Authorized Training Center" width="690" style="display:block;width:100%;max-width:690px;height:auto;border:0;">
                             </td>
                           </tr>
@@ -169,7 +181,9 @@ namespace TreinamentosManager.Services
             {
                 CriarImagemInline("image1.jpg", "image/jpeg", "convite-hero"),
                 CriarImagemInline("image2.png", "image/png", "convite-logo"),
-                CriarImagemInline("image3.png", "image/png", "convite-autodesk")
+                CriarImagemInline("image3.png", "image/png", "convite-autodesk"),
+                CriarImagemInline("image4.png", "image/png", "convite-apresenta"),
+                CriarImagemInline("image5.png", "image/png", "convite-agenda")
             };
         }
 

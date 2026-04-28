@@ -18,22 +18,30 @@ namespace TreinamentosManager.Pages.Conformidade
 
         public string[] StatusOptions => ConformidadeStatus.Todos;
 
+        public string? FiltroStatus { get; set; }
+
         [TempData]
         public string? Mensagem { get; set; }
 
         [BindProperty]
         public TurmaConformidade Registro { get; set; } = default!;
 
-        public async Task OnGetAsync()
+        public async Task OnGetAsync(string? status)
         {
-            Turmas = await _context.Turmas
+            FiltroStatus = status;
+
+            var turmas = await _context.Turmas
                 .Include(t => t.Cliente)
                 .Include(t => t.Software)
                 .Include(t => t.Instrutor)
                 .Include(t => t.ConformidadeDetalhes)
-                .Where(t => t.TipoCliente == "Turmas Abertas")
                 .OrderByDescending(t => t.Inicio)
                 .ToListAsync();
+
+            if (!string.IsNullOrWhiteSpace(status))
+                turmas = turmas.Where(t => t.Status == status).ToList();
+
+            Turmas = turmas;
         }
 
         public async Task<IActionResult> OnPostSalvarAsync()

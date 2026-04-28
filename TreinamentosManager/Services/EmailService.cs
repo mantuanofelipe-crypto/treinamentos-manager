@@ -1,6 +1,7 @@
 using MailKit.Net.Smtp;
 using MailKit.Security;
 using MimeKit;
+using System.Net.Sockets;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
@@ -151,17 +152,27 @@ namespace TreinamentosManager.Services
             message.Body = bodyBuilder.ToMessageBody();
 
             using var client = new SmtpClient();
-            client.Timeout = 15000;
+            client.Timeout = ObterTimeoutSmtp();
             var port = int.Parse(_configuration["Smtp:Port"]!);
             var secureSocketOptions = ObterSegurancaSmtp(port);
+            var host = _configuration["Smtp:Host"]!;
 
-            await client.ConnectAsync(_configuration["Smtp:Host"], port, secureSocketOptions);
+            try
+            {
+                await client.ConnectAsync(host, port, secureSocketOptions);
 
-            if (ValorConfigurado("Smtp:Username"))
-                await client.AuthenticateAsync(_configuration["Smtp:Username"], _configuration["Smtp:Password"]);
+                if (ValorConfigurado("Smtp:Username"))
+                    await client.AuthenticateAsync(_configuration["Smtp:Username"], _configuration["Smtp:Password"]);
 
-            await client.SendAsync(message);
-            await client.DisconnectAsync(true);
+                await client.SendAsync(message);
+                await client.DisconnectAsync(true);
+            }
+            catch (Exception ex) when (ex is TimeoutException || ex is IOException || ex is SocketException)
+            {
+                throw new InvalidOperationException(
+                    $"Falha ao conectar no SMTP {host}:{port} usando {secureSocketOptions}. Verifique host, porta, firewall/liberação do servidor e se o Railway consegue sair por essa porta. Timeout configurado: {client.Timeout / 1000}s.",
+                    ex);
+            }
         }
 
         public async Task EnviarEmailInstrutor(Turma turma)
@@ -221,9 +232,21 @@ namespace TreinamentosManager.Services
             return payload;
         }
 
-        private static SecureSocketOptions ObterSegurancaSmtp(int port)
+        private SecureSocketOptions ObterSegurancaSmtp(int port)
         {
-            return port == 465 ? SecureSocketOptions.SslOnConnect : SecureSocketOptions.StartTlsWhenAvailable;
+            var configured = _configuration["Smtp:SecureSocketOptions"];
+            if (Enum.TryParse<SecureSocketOptions>(configured, ignoreCase: true, out var option))
+                return option;
+
+            return port == 465 ? SecureSocketOptions.SslOnConnect : SecureSocketOptions.StartTls;
+        }
+
+        private int ObterTimeoutSmtp()
+        {
+            if (int.TryParse(_configuration["Smtp:TimeoutSeconds"], out var seconds) && seconds > 0)
+                return seconds * 1000;
+
+            return 60000;
         }
 
         private bool ValorConfigurado(string chave)

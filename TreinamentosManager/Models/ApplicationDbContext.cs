@@ -17,5 +17,15 @@ namespace TreinamentosManager.Models
         public DbSet<Software> Softwares { get; set; }
         public DbSet<InstrutorProficiencia> InstrutorProficiencias { get; set; }
         public DbSet<InstrutorACP> InstrutorACPs { get; set; }
+        public DbSet<TurmaData> TurmaDatas { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            base.OnModelCreating(builder);
+
+            builder.Entity<Turma>()
+                .Property(t => t.TipoCliente)
+                .HasDefaultValue("Turmas Gerenciável");
+        }
     }
 }

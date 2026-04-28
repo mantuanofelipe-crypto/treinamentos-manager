@@ -1,0 +1,103 @@
+@page "{id:int}"
+@model TreinamentosManager.Pages.Turmas.DetailsModel
+@{
+    ViewData["Title"] = "Detalhes da Turma";
+    var statusClass = $"bg-{Model.Turma.GetStatusColor()}";
+}
+
+<div class="card shadow-sm">
+    <div class="card-header-dk d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-center gap-2">
+            <i class="fas fa-eye"></i>
+            <h5 class="mb-0">Detalhes da Turma</h5>
+        </div>
+        <span class="badge @statusClass px-3 py-2">@Model.Turma.Status</span>
+    </div>
+    <div class="card-body p-4">
+        <div class="row g-3">
+            <div class="col-md-4">
+                <div class="text-muted small">ID Autodesk</div>
+                <div class="fw-semibold">@(Model.Turma.IdAutodesk ?? "-")</div>
+            </div>
+            <div class="col-md-4">
+                <div class="text-muted small">Modalidade</div>
+                <div class="fw-semibold">@Model.Turma.Modalidade</div>
+            </div>
+            <div class="col-md-4">
+                <div class="text-muted small">Tipo de Cliente</div>
+                <div class="fw-semibold">@Model.Turma.TipoCliente</div>
+            </div>
+            <div class="col-md-4">
+                <div class="text-muted small">Carga Horaria</div>
+                <div class="fw-semibold">@Model.Turma.CargaHoraria h</div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="text-muted small">Cliente</div>
+                <div class="fw-semibold">@(Model.Turma.Cliente?.Nome ?? "-")</div>
+            </div>
+            <div class="col-md-4">
+                <div class="text-muted small">Software</div>
+                <div class="fw-semibold">@(Model.Turma.Software?.Nome ?? "-")</div>
+            </div>
+            <div class="col-md-4">
+                <div class="text-muted small">Instrutor</div>
+                <div class="fw-semibold">@(Model.Turma.Instrutor?.Nome ?? "-")</div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="text-muted small">Inicio</div>
+                <div class="fw-semibold">@Model.Turma.Inicio.ToString("dd/MM/yyyy HH:mm")</div>
+            </div>
+            <div class="col-md-4">
+                <div class="text-muted small">Fim</div>
+                <div class="fw-semibold">@Model.Turma.Fim.ToString("dd/MM/yyyy HH:mm")</div>
+            </div>
+            <div class="col-md-4">
+                <div class="text-muted small">Dias da Semana</div>
+                <div class="fw-semibold">@(Model.Turma.DiasDaSemana ?? "-")</div>
+            </div>
+
+            <div class="col-12">
+                <div class="text-muted small">Datas das Turmas</div>
+                @if (Model.Turma.Datas.Any())
+                {
+                    <div class="d-flex flex-wrap gap-2 mt-1">
+                        @foreach (var data in Model.Turma.Datas.OrderBy(d => d.Data))
+                        {
+                            <span class="badge bg-light text-dark border">@data.Data.ToString("dd/MM/yyyy HH:mm")</span>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="fw-semibold">-</div>
+                }
+            </div>
+
+            <div class="col-12">
+                <div class="text-muted small">Link Teams</div>
+                @if (!string.IsNullOrWhiteSpace(Model.Turma.TeamsMeetingUrl))
+                {
+                    <a href="@Model.Turma.TeamsMeetingUrl" target="_blank" rel="noopener" class="fw-semibold">
+                        @Model.Turma.TeamsMeetingUrl
+                    </a>
+                }
+                else
+                {
+                    <div class="fw-semibold">-</div>
+                }
+            </div>
+        </div>
+
+        <div class="section-divider"></div>
+        <div class="d-flex gap-2">
+            <a asp-page="./Edit" asp-route-id="@Model.Turma.Id" class="btn btn-dk-primary btn-lg px-4">
+                <i class="fas fa-edit me-1"></i> Editar
+            </a>
+            <a asp-page="./Index" class="btn btn-dk-secondary btn-lg px-4">
+                <i class="fas fa-arrow-left me-1"></i> Voltar
+            </a>
+        </div>
+    </div>
+</div>

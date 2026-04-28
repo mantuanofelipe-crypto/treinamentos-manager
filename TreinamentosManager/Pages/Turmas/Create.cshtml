@@ -41,6 +41,17 @@
 
             <div class="row g-3 mb-3">
                 <div class="col-md-6">
+                    <label asp-for="Turma.TipoCliente" class="form-label form-label-dk">Tipo de Cliente</label>
+                    <select asp-for="Turma.TipoCliente" class="form-select">
+                        <option value="Turmas Gerenciável">Turmas Gerenciável</option>
+                        <option value="Turmas Abertas">Turmas Abertas</option>
+                    </select>
+                    <span asp-validation-for="Turma.TipoCliente" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="row g-3 mb-3">
+                <div class="col-md-6">
                     <label asp-for="Turma.ClienteId" class="form-label form-label-dk">Cliente <span class="text-danger">*</span></label>
                     <select asp-for="Turma.ClienteId" class="form-select" asp-items="ViewBag.ClienteId" required>
                         <option value="">— Selecione um Cliente —</option>
@@ -67,6 +78,37 @@
                     <input asp-for="Turma.Fim" class="form-control" type="datetime-local" id="dtFim" />
                     <span asp-validation-for="Turma.Fim" class="text-danger small"></span>
                 </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label form-label-dk">Datas das Turmas <span class="text-danger">*</span></label>
+                <div id="datasTurma" class="d-grid gap-2">
+                    @if (Model.DatasTurma.Any())
+                    {
+                        foreach (var data in Model.DatasTurma)
+                        {
+                            <div class="input-group data-turma-item">
+                                <input name="DatasTurma" class="form-control" type="datetime-local" value="@(data.HasValue ? data.Value.ToString("yyyy-MM-ddTHH:mm") : "")" />
+                                <button type="button" class="btn btn-outline-danger remover-data" title="Remover data">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="input-group data-turma-item">
+                            <input name="DatasTurma" class="form-control" type="datetime-local" />
+                            <button type="button" class="btn btn-outline-danger remover-data" title="Remover data">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    }
+                </div>
+                <span asp-validation-for="DatasTurma" class="text-danger small"></span>
+                <button type="button" id="adicionarData" class="btn btn-outline-secondary btn-sm mt-2">
+                    <i class="fas fa-plus me-1"></i> Adicionar Data
+                </button>
             </div>
 
             <!-- Preview do Status -->
@@ -132,5 +174,27 @@
         }
         document.getElementById('dtInicio').addEventListener('change', calcularStatus);
         document.getElementById('dtFim').addEventListener('change', calcularStatus);
+
+        document.getElementById('adicionarData').addEventListener('click', function () {
+            const item = document.createElement('div');
+            item.className = 'input-group data-turma-item';
+            item.innerHTML = `
+                <input name="DatasTurma" class="form-control" type="datetime-local" />
+                <button type="button" class="btn btn-outline-danger remover-data" title="Remover data">
+                    <i class="fas fa-trash"></i>
+                </button>`;
+            document.getElementById('datasTurma').appendChild(item);
+        });
+
+        document.getElementById('datasTurma').addEventListener('click', function (event) {
+            const button = event.target.closest('.remover-data');
+            if (!button) return;
+            const items = document.querySelectorAll('.data-turma-item');
+            if (items.length === 1) {
+                button.closest('.data-turma-item').querySelector('input').value = '';
+                return;
+            }
+            button.closest('.data-turma-item').remove();
+        });
     </script>
 }

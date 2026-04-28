@@ -8,7 +8,7 @@ namespace TreinamentosManager.Models
 
         [Required]
         [Display(Name = "Nome da Empresa")]
-        public string Nome { get; set; }
+        public string Nome { get; set; } = string.Empty;
 
         [EmailAddress]
         [Display(Name = "Email")]

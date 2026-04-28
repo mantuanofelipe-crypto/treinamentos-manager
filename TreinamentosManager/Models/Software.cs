@@ -8,7 +8,7 @@ namespace TreinamentosManager.Models
 
         [Required]
         [Display(Name = "Nome do Software")]
-        public string Nome { get; set; }
+        public string Nome { get; set; } = string.Empty;
 
         // Relacionamento com Turmas
         public ICollection<Turma> Turmas { get; set; } = new List<Turma>();

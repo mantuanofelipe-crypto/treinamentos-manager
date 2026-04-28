@@ -26,6 +26,9 @@ namespace TreinamentosManager.Models
         [Display(Name = "Modalidade")]
         public string Modalidade { get; set; } = "Presencial";
 
+        [Display(Name = "Tipo de Cliente")]
+        public string TipoCliente { get; set; } = "Turmas Gerenciável";
+
         // Relacionamento com Cliente
         [Required]
         public int ClienteId { get; set; }
@@ -52,6 +55,8 @@ namespace TreinamentosManager.Models
 
         // Campo para armazenar o link da reunião Teams
         public string? TeamsMeetingUrl { get; set; }
+
+        public ICollection<TurmaData> Datas { get; set; } = new List<TurmaData>();
 
         // Método auxiliar para obter cor do status
         public string GetStatusColor()

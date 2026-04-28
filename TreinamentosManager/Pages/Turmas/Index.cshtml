@@ -59,11 +59,13 @@
                 <thead>
                     <tr>
                         <th>Status</th>
+                        <th>Tipo de Cliente</th>
                         <th>Modalidade</th>
                         <th>ID Autodesk</th>
                         <th>Cliente</th>
                         <th>Software</th>
                         <th>Carga Horária</th>
+                        <th>Datas</th>
                         <th>Dias da Semana</th>
                         <th>Início</th>
                         <th>Fim</th>
@@ -92,6 +94,7 @@
                                     <i class="fas @icon me-1"></i>@item.Status
                                 </span>
                             </td>
+                            <td>@item.TipoCliente</td>
                             <td>
                                 @if (item.Modalidade == "Online")
                                 {
@@ -106,6 +109,18 @@
                             <td>@(item.Cliente?.Nome ?? "—")</td>
                             <td>@(item.Software?.Nome ?? "—")</td>
                             <td>@Html.DisplayFor(m => item.CargaHoraria)h</td>
+                            <td>
+                                @if (item.Datas.Any())
+                                {
+                                    <span title="@string.Join(", ", item.Datas.OrderBy(d => d.Data).Select(d => d.Data.ToString("dd/MM/yyyy HH:mm")))">
+                                        @item.Datas.Count data(s)
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">â€”</span>
+                                }
+                            </td>
                             <td>@Html.DisplayFor(m => item.DiasDaSemana)</td>
                             <td>@item.Inicio.ToString("dd/MM/yyyy")</td>
                             <td>@item.Fim.ToString("dd/MM/yyyy")</td>
@@ -126,7 +141,7 @@
                     @if (!Model.Turmas.Any())
                     {
                         <tr>
-                            <td colspan="11" class="text-center py-4 text-muted">
+                            <td colspan="13" class="text-center py-4 text-muted">
                                 <i class="fas fa-inbox fa-2x mb-2 d-block"></i>Nenhuma turma encontrada.
                             </td>
                         </tr>

@@ -29,6 +29,10 @@ public class IndexModel : PageModel
     public List<int?> GraficoPresencialTendencia { get; set; } = new();
     public List<int> GraficoOnline { get; set; } = new();
     public List<int?> GraficoOnlineTendencia { get; set; } = new();
+    public List<int> GraficoGerenciavel { get; set; } = new();
+    public List<int?> GraficoGerenciavelTendencia { get; set; } = new();
+    public List<int> GraficoAbertas { get; set; } = new();
+    public List<int?> GraficoAbertasTendencia { get; set; } = new();
 
     public async Task OnGetAsync()
     {
@@ -61,6 +65,8 @@ public class IndexModel : PageModel
             var todos = turmas.Where(t => t.Fim.Year == mes.Year && t.Fim.Month == mes.Month).ToList();
             var presencial = todos.Where(t => t.Modalidade == "Presencial").Sum(t => t.CargaHoraria);
             var online = todos.Where(t => t.Modalidade == "Online").Sum(t => t.CargaHoraria);
+            var gerenciavel = todos.Where(t => t.TipoCliente == "Turmas Gerenciável").Sum(t => t.CargaHoraria);
+            var abertas = todos.Where(t => t.TipoCliente == "Turmas Abertas").Sum(t => t.CargaHoraria);
             var carga = todos.Sum(t => t.CargaHoraria);
 
             GraficoLabels.Add(mes.ToString("MMM/yy"));
@@ -71,6 +77,10 @@ public class IndexModel : PageModel
             GraficoPresencialTendencia.Add(isFuturo ? presencial : (int?)null);
             GraficoOnline.Add(isFuturo ? 0 : online);
             GraficoOnlineTendencia.Add(isFuturo ? online : (int?)null);
+            GraficoGerenciavel.Add(isFuturo ? 0 : gerenciavel);
+            GraficoGerenciavelTendencia.Add(isFuturo ? gerenciavel : (int?)null);
+            GraficoAbertas.Add(isFuturo ? 0 : abertas);
+            GraficoAbertasTendencia.Add(isFuturo ? abertas : (int?)null);
         }
 
         // Conectar linhas históricas ao primeiro ponto de tendência
@@ -80,6 +90,8 @@ public class IndexModel : PageModel
             GraficoTendencia[pivot] = GraficoHistorico[pivot];
             GraficoPresencialTendencia[pivot] = GraficoPresencial[pivot];
             GraficoOnlineTendencia[pivot] = GraficoOnline[pivot];
+            GraficoGerenciavelTendencia[pivot] = GraficoGerenciavel[pivot];
+            GraficoAbertasTendencia[pivot] = GraficoAbertas[pivot];
         }
     }
 }

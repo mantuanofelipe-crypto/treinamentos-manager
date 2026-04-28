@@ -30,15 +30,30 @@ namespace TreinamentosManager.Pages.Turmas
         [BindProperty]
         public Turma Turma { get; set; } = default!;
 
+        [BindProperty]
+        public List<DateTime?> DatasTurma { get; set; } = new();
+
         public async Task<IActionResult> OnPostAsync()
         {
+            var datasSelecionadas = DatasTurma
+                .Where(d => d.HasValue)
+                .Select(d => d!.Value)
+                .Distinct()
+                .OrderBy(d => d)
+                .ToList();
+
+            if (!datasSelecionadas.Any())
+                ModelState.AddModelError(nameof(DatasTurma), "Informe pelo menos uma data da turma.");
+
             if (!ModelState.IsValid)
             {
-                ViewData["InstrutorId"] = new SelectList(_context.Instrutores.Where(i => i.Ativo).OrderBy(i => i.Nome), "Id", "Nome");
-                ViewData["ClienteId"] = new SelectList(_context.Clientes.Where(c => c.Ativo).OrderBy(c => c.Nome), "Id", "Nome");
-                ViewData["SoftwareId"] = new SelectList(_context.Softwares.OrderBy(s => s.Nome), "Id", "Nome");
+                CarregarViewData();
                 return Page();
             }
+
+            Turma.Datas = datasSelecionadas
+                .Select(data => new TurmaData { Data = data })
+                .ToList();
 
             // Criar reunião no Teams
             Turma.TeamsMeetingUrl = await _teamsService.CriarReuniaoTeams(Turma);
@@ -53,6 +68,13 @@ namespace TreinamentosManager.Pages.Turmas
             }
 
             return RedirectToPage("./Index");
+        }
+
+        private void CarregarViewData()
+        {
+            ViewData["InstrutorId"] = new SelectList(_context.Instrutores.Where(i => i.Ativo).OrderBy(i => i.Nome), "Id", "Nome");
+            ViewData["ClienteId"] = new SelectList(_context.Clientes.Where(c => c.Ativo).OrderBy(c => c.Nome), "Id", "Nome");
+            ViewData["SoftwareId"] = new SelectList(_context.Softwares.OrderBy(s => s.Nome), "Id", "Nome");
         }
     }
 }

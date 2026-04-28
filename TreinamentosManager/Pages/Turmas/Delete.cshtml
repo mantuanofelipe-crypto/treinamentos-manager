@@ -1,0 +1,66 @@
+@page "{id:int}"
+@model TreinamentosManager.Pages.Turmas.DeleteModel
+@{
+    ViewData["Title"] = "Excluir Turma";
+    var statusClass = $"bg-{Model.Turma.GetStatusColor()}";
+}
+
+<div class="card shadow-sm">
+    <div class="card-header-dk d-flex align-items-center gap-2">
+        <i class="fas fa-trash"></i>
+        <h5 class="mb-0">Excluir Turma</h5>
+    </div>
+    <div class="card-body p-4">
+        <div class="alert alert-danger">
+            Tem certeza que deseja excluir esta turma? Esta acao nao pode ser desfeita.
+        </div>
+
+        <dl class="row mb-0">
+            <dt class="col-sm-3">ID Autodesk</dt>
+            <dd class="col-sm-9">@(Model.Turma.IdAutodesk ?? "-")</dd>
+
+            <dt class="col-sm-3">Cliente</dt>
+            <dd class="col-sm-9">@(Model.Turma.Cliente?.Nome ?? "-")</dd>
+
+            <dt class="col-sm-3">Tipo de Cliente</dt>
+            <dd class="col-sm-9">@Model.Turma.TipoCliente</dd>
+
+            <dt class="col-sm-3">Software</dt>
+            <dd class="col-sm-9">@(Model.Turma.Software?.Nome ?? "-")</dd>
+
+            <dt class="col-sm-3">Instrutor</dt>
+            <dd class="col-sm-9">@(Model.Turma.Instrutor?.Nome ?? "-")</dd>
+
+            <dt class="col-sm-3">Periodo</dt>
+            <dd class="col-sm-9">@Model.Turma.Inicio.ToString("dd/MM/yyyy") a @Model.Turma.Fim.ToString("dd/MM/yyyy")</dd>
+
+            <dt class="col-sm-3">Datas</dt>
+            <dd class="col-sm-9">
+                @if (Model.Turma.Datas.Any())
+                {
+                    @string.Join(", ", Model.Turma.Datas.OrderBy(d => d.Data).Select(d => d.Data.ToString("dd/MM/yyyy HH:mm")))
+                }
+                else
+                {
+                    <span>-</span>
+                }
+            </dd>
+
+            <dt class="col-sm-3">Status</dt>
+            <dd class="col-sm-9">
+                <span class="badge @statusClass">@Model.Turma.Status</span>
+            </dd>
+        </dl>
+
+        <div class="section-divider"></div>
+        <form method="post" class="d-flex gap-2">
+            <input type="hidden" asp-for="Turma.Id" />
+            <button type="submit" class="btn btn-danger btn-lg px-4">
+                <i class="fas fa-trash me-1"></i> Excluir
+            </button>
+            <a asp-page="./Index" class="btn btn-dk-secondary btn-lg px-4">
+                <i class="fas fa-arrow-left me-1"></i> Voltar
+            </a>
+        </form>
+    </div>
+</div>

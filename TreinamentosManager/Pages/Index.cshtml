@@ -78,6 +78,11 @@
             <button type="button" class="btn btn-outline-secondary" data-modalidade="Presencial">Presencial</button>
             <button type="button" class="btn btn-outline-secondary" data-modalidade="Online">Online</button>
         </div>
+        <div class="btn-group btn-group-sm ms-2" role="group" id="filtroTipoCliente">
+            <button type="button" class="btn btn-outline-secondary active" data-tipo="todos">Todos</button>
+            <button type="button" class="btn btn-outline-secondary" data-tipo="Gerenciavel">Gerenciável</button>
+            <button type="button" class="btn btn-outline-secondary" data-tipo="Abertas">Abertas</button>
+        </div>
     </div>
     <canvas id="graficoAlocacao"></canvas>
 </div>
@@ -89,8 +94,11 @@
     const dados = {
         todos:      { hist: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.GraficoHistorico)),      tend: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.GraficoTendencia)) },
         Presencial: { hist: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.GraficoPresencial)),     tend: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.GraficoPresencialTendencia)) },
-        Online:     { hist: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.GraficoOnline)),         tend: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.GraficoOnlineTendencia)) }
+        Online:     { hist: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.GraficoOnline)),         tend: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.GraficoOnlineTendencia)) },
+        Gerenciavel:{ hist: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.GraficoGerenciavel)),    tend: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.GraficoGerenciavelTendencia)) },
+        Abertas:    { hist: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.GraficoAbertas)),        tend: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.GraficoAbertasTendencia)) }
     };
+    let filtroAtual = 'todos';
 
     const ctx = document.getElementById('graficoAlocacao');
     const chart = new Chart(ctx, {
@@ -126,7 +134,22 @@
         btn.addEventListener('click', function () {
             document.querySelectorAll('#filtroModalidade button').forEach(b => b.classList.remove('active'));
             this.classList.add('active');
-            chart.data.datasets = buildDatasets(this.dataset.modalidade);
+            filtroAtual = this.dataset.modalidade;
+            document.querySelectorAll('#filtroTipoCliente button').forEach(b => b.classList.remove('active'));
+            document.querySelector('#filtroTipoCliente button[data-tipo="todos"]').classList.add('active');
+            chart.data.datasets = buildDatasets(filtroAtual);
+            chart.update();
+        });
+    });
+
+    document.querySelectorAll('#filtroTipoCliente button').forEach(btn => {
+        btn.addEventListener('click', function () {
+            document.querySelectorAll('#filtroTipoCliente button').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            document.querySelectorAll('#filtroModalidade button').forEach(b => b.classList.remove('active'));
+            document.querySelector('#filtroModalidade button[data-modalidade="todos"]').classList.add('active');
+            filtroAtual = this.dataset.tipo;
+            chart.data.datasets = buildDatasets(filtroAtual);
             chart.update();
         });
     });

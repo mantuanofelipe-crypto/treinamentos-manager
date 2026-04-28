@@ -7,11 +7,11 @@ namespace TreinamentosManager.Models
         public string Id { get; set; } = Guid.NewGuid().ToString();
 
         [Required]
-        public string Nome { get; set; }
+        public string Nome { get; set; } = string.Empty;
 
         [Required]
         [EmailAddress]
-        public string Email { get; set; }
+        public string Email { get; set; } = string.Empty;
 
         [Display(Name = "Ativo")]
         public bool Ativo { get; set; } = true;

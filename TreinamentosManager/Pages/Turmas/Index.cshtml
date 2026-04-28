@@ -61,6 +61,7 @@
                         <th>Status</th>
                         <th>Tipo de Cliente</th>
                         <th>Conformidade</th>
+                        <th>Convite</th>
                         <th>Modalidade</th>
                         <th>Cliente</th>
                         <th>Software</th>
@@ -79,15 +80,17 @@
                         <tr>
                             <td>
                                 @{
-                                    var badgeClass = item.Status switch {
-                                        "Concluída"    => "badge-concluida",
+                                    var badgeClass = item.Status switch
+                                    {
+                                        "Concluída" => "badge-concluida",
                                         "Em andamento" => "badge-andamento",
-                                        _              => "badge-futura"
+                                        _ => "badge-futura"
                                     };
-                                    var icon = item.Status switch {
-                                        "Concluída"    => "fa-check-circle",
+                                    var icon = item.Status switch
+                                    {
+                                        "Concluída" => "fa-check-circle",
                                         "Em andamento" => "fa-spinner",
-                                        _              => "fa-calendar-alt"
+                                        _ => "fa-calendar-alt"
                                     };
                                 }
                                 <span class="badge @badgeClass px-2 py-1">
@@ -95,7 +98,33 @@
                                 </span>
                             </td>
                             <td>@item.TipoCliente</td>
-                            <td>@(item.Conformidade ?? "—")</td>
+                            <td>
+                                @{
+                                    var conformidadeGeral = item.ConformidadeDetalhes?.ConformidadeGeral;
+                                }
+                                @if (conformidadeGeral.HasValue)
+                                {
+                                    <span class="badge bg-secondary">@conformidadeGeral.Value.ToString("0.#")%</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">—</span>
+                                }
+                            </td>
+                            <td>
+                                @if (item.ComunicadoEnviadoEm.HasValue)
+                                {
+                                    <span class="badge bg-success" title="Enviado para @item.ComunicadoEnviadoPara em @item.ComunicadoEnviadoEm.Value.ToString("dd/MM/yyyy HH:mm")">
+                                        <i class="fas fa-check me-1"></i>Enviado
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-warning text-dark">
+                                        <i class="fas fa-clock me-1"></i>Pendente
+                                    </span>
+                                }
+                            </td>
                             <td>
                                 @if (item.Modalidade == "Online")
                                 {
@@ -118,7 +147,7 @@
                                 }
                                 else
                                 {
-                                    <span class="text-muted">â€”</span>
+                                    <span class="text-muted">—</span>
                                 }
                             </td>
                             <td>@Html.DisplayFor(m => item.DiasDaSemana)</td>
@@ -144,7 +173,7 @@
                     @if (!Model.Turmas.Any())
                     {
                         <tr>
-                            <td colspan="13" class="text-center py-4 text-muted">
+                            <td colspan="14" class="text-center py-4 text-muted">
                                 <i class="fas fa-inbox fa-2x mb-2 d-block"></i>Nenhuma turma encontrada.
                             </td>
                         </tr>

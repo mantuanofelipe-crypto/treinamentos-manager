@@ -106,6 +106,19 @@ namespace TreinamentosManager.Pages.Turmas
 
                 var conviteHtml = _conviteTemplateService.CriarHtmlEmail(turma);
                 await _emailService.EnviarComunicadoAsync(emails, Assunto, Conteudo, anexos, conviteHtml);
+
+                turma.ComunicadoEnviadoEm = DateTime.Now;
+                turma.ComunicadoEnviadoPara = string.Join("; ", emails);
+
+                var conformidade = await _context.TurmaConformidades.FirstOrDefaultAsync(c => c.TurmaId == turma.Id);
+                if (conformidade == null)
+                {
+                    conformidade = new TurmaConformidade { TurmaId = turma.Id };
+                    _context.TurmaConformidades.Add(conformidade);
+                }
+
+                conformidade.Convite = ConformidadeStatus.Ok;
+                await _context.SaveChangesAsync();
                 TipoMensagem = "success";
                 Mensagem = $"Comunicado enviado para {emails.Count} destinatário(s).";
                 return RedirectToPage(new { id = TurmaId });

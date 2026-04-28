@@ -19,8 +19,8 @@ namespace TreinamentosManager.Services
         }
 
         public bool EstaConfigurado =>
-            SmtpHabilitado ||
-            ResendConfigurado;
+            ResendConfigurado ||
+            SmtpHabilitado;
 
         private bool ResendConfigurado =>
             ValorConfigurado("Resend:ApiKey") &&
@@ -39,17 +39,17 @@ namespace TreinamentosManager.Services
         {
             var pendentes = new List<string>();
 
+            if (!ResendConfigurado)
+            {
+                AdicionarSePendente(pendentes, "Resend:ApiKey", "Resend__ApiKey");
+                AdicionarSePendente(pendentes, "Resend:FromEmail", "Resend__FromEmail");
+            }
+
             if (SmtpHabilitado && !SmtpConfigurado)
             {
                 AdicionarSePendente(pendentes, "Smtp:Host", "Smtp__Host");
                 AdicionarSePendente(pendentes, "Smtp:Port", "Smtp__Port");
                 AdicionarSePendente(pendentes, "Smtp:FromEmail", "Smtp__FromEmail");
-            }
-
-            if (!ResendConfigurado && !SmtpConfigurado)
-            {
-                AdicionarSePendente(pendentes, "Resend:ApiKey", "Resend__ApiKey");
-                AdicionarSePendente(pendentes, "Resend:FromEmail", "Resend__FromEmail");
             }
 
             return pendentes;
@@ -65,16 +65,19 @@ namespace TreinamentosManager.Services
             if (!EstaConfigurado)
                 throw new InvalidOperationException($"Email não configurado. Configure SMTP no Railway com Smtp__Enabled=true, ou configure Resend. Pendentes: {string.Join(", ", ObterVariaveisPendentes())}.");
 
+            if (ResendConfigurado)
+            {
+                await EnviarViaResendAsync(destinatarios, assunto, corpo, anexos, corpoHtml);
+                return;
+            }
+
             if (SmtpHabilitado)
             {
                 if (!SmtpConfigurado)
                     throw new InvalidOperationException($"SMTP habilitado, mas incompleto. Configure no Railway: {string.Join(", ", ObterVariaveisPendentes())}.");
 
                 await EnviarViaSmtpAsync(destinatarios, assunto, corpo, anexos, corpoHtml);
-                return;
             }
-
-            await EnviarViaResendAsync(destinatarios, assunto, corpo, anexos, corpoHtml);
         }
 
         private async Task EnviarViaResendAsync(

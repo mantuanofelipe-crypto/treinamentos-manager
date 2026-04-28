@@ -18,6 +18,7 @@ namespace TreinamentosManager.Models
         public DbSet<InstrutorProficiencia> InstrutorProficiencias { get; set; }
         public DbSet<InstrutorACP> InstrutorACPs { get; set; }
         public DbSet<TurmaData> TurmaDatas { get; set; }
+        public DbSet<TurmaConformidade> TurmaConformidades { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -30,6 +31,16 @@ namespace TreinamentosManager.Models
             builder.Entity<TurmaData>()
                 .Property(t => t.DuracaoHoras)
                 .HasDefaultValue(1m);
+
+            builder.Entity<Turma>()
+                .HasOne(t => t.ConformidadeDetalhes)
+                .WithOne(c => c.Turma)
+                .HasForeignKey<TurmaConformidade>(c => c.TurmaId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<TurmaConformidade>()
+                .HasIndex(c => c.TurmaId)
+                .IsUnique();
         }
     }
 }

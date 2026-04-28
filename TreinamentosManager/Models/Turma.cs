@@ -61,6 +61,12 @@ namespace TreinamentosManager.Models
 
         public ICollection<TurmaData> Datas { get; set; } = new List<TurmaData>();
 
+        public TurmaConformidade? ConformidadeDetalhes { get; set; }
+
+        public DateTime? ComunicadoEnviadoEm { get; set; }
+
+        public string? ComunicadoEnviadoPara { get; set; }
+
         // Método auxiliar para obter cor do status
         public string GetStatusColor()
         {

@@ -1,0 +1,100 @@
+@page
+@model TreinamentosManager.Pages.Conformidade.IndexModel
+@using Microsoft.AspNetCore.Html
+@using TreinamentosManager.Models
+@{
+    ViewData["Title"] = "Conformidade";
+}
+
+<div class="card shadow-sm mb-3">
+    <div class="card-header-dk d-flex align-items-center gap-2">
+        <i class="fas fa-clipboard-check"></i>
+        <h5 class="mb-0">Conformidade</h5>
+    </div>
+    <div class="card-body">
+        @if (!string.IsNullOrWhiteSpace(Model.Mensagem))
+        {
+            <div class="alert alert-success">@Model.Mensagem</div>
+        }
+
+        <div class="row g-3">
+            @foreach (var turma in Model.Turmas)
+            {
+                var conformidade = turma.ConformidadeDetalhes ?? new TurmaConformidade { TurmaId = turma.Id };
+                <div class="col-12">
+                    <form method="post" asp-page-handler="Salvar" class="border rounded p-3 bg-white">
+                        <input type="hidden" name="Registro.TurmaId" value="@turma.Id" />
+
+                        <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
+                            <div>
+                                <div class="fw-bold">@turma.Software?.Nome</div>
+                                <div class="text-muted small">
+                                    @(turma.Cliente?.Nome ?? "Cliente não informado") · @(turma.Instrutor?.Nome ?? "Instrutor não informado") · @turma.Inicio.ToString("dd/MM/yyyy")
+                                </div>
+                            </div>
+                            <div class="d-flex flex-wrap gap-2">
+                                <span class="badge bg-secondary">Instrutor: @IndexModel.FormatarPercentual(conformidade.ConformidadeInstrutor)</span>
+                                <span class="badge bg-secondary">Coordenação: @IndexModel.FormatarPercentual(conformidade.ConformidadeCoordenacao)</span>
+                                <span class="badge bg-primary">Geral: @IndexModel.FormatarPercentual(conformidade.ConformidadeGeral)</span>
+                                <span class="badge bg-dark">Soma técnica: @conformidade.ConformidadeTecnicaSoma.ToString("0.#")</span>
+                            </div>
+                        </div>
+
+                        <div class="row g-2">
+                            <div class="col-lg-3 col-md-4 col-sm-6">@SelectStatus("Ficha de inscrição", "Registro.FichaInscricao", conformidade.FichaInscricao)</div>
+                            <div class="col-lg-3 col-md-4 col-sm-6">@SelectStatus("Pauta", "Registro.Pauta", conformidade.Pauta)</div>
+                            <div class="col-lg-3 col-md-4 col-sm-6">@SelectStatus("Convite", "Registro.Convite", conformidade.Convite)</div>
+                            <div class="col-lg-3 col-md-4 col-sm-6">@SelectStatus("Configuração Hub", "Registro.ConfiguracaoHub", conformidade.ConfiguracaoHub)</div>
+                            <div class="col-lg-3 col-md-4 col-sm-6">@SelectStatus("Script de Aula", "Registro.ScriptAula", conformidade.ScriptAula)</div>
+                            <div class="col-lg-3 col-md-4 col-sm-6">@SelectStatus("Material de Aula", "Registro.MaterialAula", conformidade.MaterialAula)</div>
+                            <div class="col-lg-3 col-md-4 col-sm-6">@SelectStatus("Banco de Questões", "Registro.BancoQuestoes", conformidade.BancoQuestoes)</div>
+                            <div class="col-lg-3 col-md-4 col-sm-6">@SelectStatus("Nuvem", "Registro.Nuvem", conformidade.Nuvem)</div>
+                            <div class="col-lg-3 col-md-4 col-sm-6">@SelectStatus("Preenchimento de pauta", "Registro.PreenchimentoPauta", conformidade.PreenchimentoPauta)</div>
+                            <div class="col-lg-3 col-md-4 col-sm-6">@SelectStatus("Certificado", "Registro.Certificado", conformidade.Certificado)</div>
+                        </div>
+
+                        <div class="row g-3 mt-2">
+                            <div class="col-md-6">
+                                <label class="form-label form-label-dk">Justificativa do Instrutor</label>
+                                <textarea name="Registro.JustificativaInstrutor" class="form-control" rows="3">@conformidade.JustificativaInstrutor</textarea>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label form-label-dk">Justificativa Coordenação</label>
+                                <textarea name="Registro.JustificativaCoordenacao" class="form-control" rows="3">@conformidade.JustificativaCoordenacao</textarea>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-end mt-3">
+                            <button type="submit" class="btn btn-dk-primary">
+                                <i class="fas fa-save me-1"></i>Salvar conformidade
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            }
+
+            @if (!Model.Turmas.Any())
+            {
+                <div class="col-12 text-center text-muted py-4">
+                    <i class="fas fa-inbox fa-2x mb-2 d-block"></i>Nenhuma turma encontrada.
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@functions {
+    private IHtmlContent SelectStatus(string label, string name, string value)
+    {
+        var builder = new HtmlContentBuilder();
+        builder.AppendHtml($"<label class=\"form-label form-label-dk small mb-1\">{System.Net.WebUtility.HtmlEncode(label)}</label>");
+        builder.AppendHtml($"<select name=\"{name}\" class=\"form-select form-select-sm\">");
+        foreach (var option in Model.StatusOptions)
+        {
+            var selected = option == value ? " selected" : "";
+            builder.AppendHtml($"<option value=\"{System.Net.WebUtility.HtmlEncode(option)}\"{selected}>{System.Net.WebUtility.HtmlEncode(option)}</option>");
+        }
+        builder.AppendHtml("</select>");
+        return builder;
+    }
+}

@@ -37,6 +37,7 @@ namespace TreinamentosManager.Pages.Turmas
                 .Include(t => t.Cliente)
                 .Include(t => t.Software)
                 .Include(t => t.Datas)
+                .Include(t => t.ConformidadeDetalhes)
                 .AsQueryable();
 
             if (clienteId.HasValue)

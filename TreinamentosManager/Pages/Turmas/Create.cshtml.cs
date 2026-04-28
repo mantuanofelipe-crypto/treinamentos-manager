@@ -10,18 +10,15 @@ namespace TreinamentosManager.Pages.Turmas
     public class CreateModel : PageModel
     {
         private readonly ApplicationDbContext _context;
-        private readonly TeamsService _teamsService;
         private readonly EmailService _emailService;
         private readonly ILogger<CreateModel> _logger;
 
         public CreateModel(
             ApplicationDbContext context,
-            TeamsService teamsService,
             EmailService emailService,
             ILogger<CreateModel> logger)
         {
             _context = context;
-            _teamsService = teamsService;
             _emailService = emailService;
             _logger = logger;
         }
@@ -65,9 +62,6 @@ namespace TreinamentosManager.Pages.Turmas
             await _context.Entry(Turma).Reference(t => t.Cliente).LoadAsync();
             await _context.Entry(Turma).Reference(t => t.Software).LoadAsync();
             await _context.Entry(Turma).Reference(t => t.Instrutor).LoadAsync();
-
-            await _teamsService.CriarReunioesTeams(Turma);
-            await _context.SaveChangesAsync();
 
             if (Turma.Instrutor != null)
             {

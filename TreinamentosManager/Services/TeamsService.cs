@@ -33,12 +33,15 @@ namespace TreinamentosManager.Services
             return pendentes;
         }
 
-        public async Task CriarReunioesTeams(Turma turma)
+        public async Task<TeamsCriacaoResultado> CriarReunioesTeams(Turma turma)
         {
+            var resultado = new TeamsCriacaoResultado();
+
             if (!EstaConfigurado)
             {
                 _logger.LogWarning("Microsoft Teams nao esta configurado. As reunioes nao foram criadas.");
-                return;
+                resultado.Erros.Add("Microsoft Teams nao esta configurado.");
+                return resultado;
             }
 
             Microsoft.Graph.GraphServiceClient graphClient;
@@ -60,13 +63,17 @@ namespace TreinamentosManager.Services
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Configuracao do Microsoft Teams invalida. Verifique TenantId, ClientId, ClientSecret e OrganizerUserId.");
-                return;
+                resultado.Erros.Add($"Configuracao do Microsoft Teams invalida: {ex.Message}");
+                return resultado;
             }
 
             foreach (var data in turma.Datas.OrderBy(d => d.Data))
             {
                 if (!string.IsNullOrWhiteSpace(data.TeamsMeetingUrl))
+                {
+                    resultado.Ignoradas++;
                     continue;
+                }
 
                 var onlineMeeting = new OnlineMeeting
                 {
@@ -80,10 +87,16 @@ namespace TreinamentosManager.Services
                     var result = await graphClient.Users[organizerUserId].OnlineMeetings.PostAsync(onlineMeeting);
                     data.TeamsMeetingId = result?.Id;
                     data.TeamsMeetingUrl = result?.JoinWebUrl;
+
+                    if (!string.IsNullOrWhiteSpace(data.TeamsMeetingUrl))
+                        resultado.Criadas++;
+                    else
+                        resultado.Erros.Add($"Graph nao retornou link para {data.Data:dd/MM/yyyy HH:mm}.");
                 }
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, "Falha ao criar reuniao do Teams para a turma {TurmaId} em {Data}.", turma.Id, data.Data);
+                    resultado.Erros.Add($"{data.Data:dd/MM/yyyy HH:mm}: {ex.Message}");
                 }
             }
 
@@ -91,6 +104,8 @@ namespace TreinamentosManager.Services
                 .OrderBy(d => d.Data)
                 .Select(d => d.TeamsMeetingUrl)
                 .FirstOrDefault(url => !string.IsNullOrWhiteSpace(url));
+
+            return resultado;
         }
 
         private static string CriarAssunto(Turma turma, TurmaData data)
@@ -116,5 +131,13 @@ namespace TreinamentosManager.Services
             if (!ValorConfigurado(chave))
                 pendentes.Add(nomeVariavel);
         }
+    }
+
+    public class TeamsCriacaoResultado
+    {
+        public int Criadas { get; set; }
+        public int Ignoradas { get; set; }
+        public List<string> Erros { get; } = new();
+        public bool Sucesso => Criadas > 0 && !Erros.Any();
     }
 }

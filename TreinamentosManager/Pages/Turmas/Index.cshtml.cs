@@ -95,14 +95,26 @@ namespace TreinamentosManager.Pages.Turmas
                 return RedirectToPage();
             }
 
-            await _teamsService.CriarReunioesTeams(turma);
+            var resultado = await _teamsService.CriarReunioesTeams(turma);
             await _context.SaveChangesAsync();
 
-            var criadas = turma.Datas.Count(d => !string.IsNullOrWhiteSpace(d.TeamsMeetingUrl));
-            TipoMensagem = criadas > 0 ? "success" : "warning";
-            Mensagem = criadas > 0
-                ? $"Reuniões do Teams atualizadas para {criadas} data(s)."
-                : "Nenhuma reunião foi criada. Verifique os logs do Railway/Microsoft Graph.";
+            var totalComLink = turma.Datas.Count(d => !string.IsNullOrWhiteSpace(d.TeamsMeetingUrl));
+            TipoMensagem = resultado.Criadas > 0 ? "success" : "warning";
+
+            if (resultado.Criadas > 0)
+            {
+                Mensagem = $"Reuniões do Teams criadas: {resultado.Criadas}. Total com link: {totalComLink}.";
+            }
+            else if (resultado.Erros.Any())
+            {
+                Mensagem = $"Nenhuma reunião foi criada. Erro: {string.Join(" | ", resultado.Erros.Take(2))}";
+            }
+            else
+            {
+                Mensagem = totalComLink > 0
+                    ? $"Todas as reuniões já tinham link. Total com link: {totalComLink}."
+                    : "Nenhuma reunião foi criada pelo Microsoft Graph.";
+            }
 
             return RedirectToPage();
         }

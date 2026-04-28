@@ -18,4 +18,8 @@
     <PackageReference Include="Microsoft.Graph" Version="5.56.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Include="Templates\*.pptx" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
 </Project>

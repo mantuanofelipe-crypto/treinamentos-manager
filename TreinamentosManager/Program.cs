@@ -42,6 +42,7 @@ builder.Services.AddAuthorization(options =>
 // Registrar serviços
 builder.Services.AddScoped<TeamsService>();
 builder.Services.AddScoped<EmailService>();
+builder.Services.AddScoped<ConviteTemplateService>();
 
 var app = builder.Build();
 

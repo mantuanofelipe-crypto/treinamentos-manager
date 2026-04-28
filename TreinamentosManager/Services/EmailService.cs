@@ -51,21 +51,29 @@ namespace TreinamentosManager.Services
             return pendentes;
         }
 
-        public async Task EnviarComunicadoAsync(IEnumerable<string> destinatarios, string assunto, string corpo)
+        public async Task EnviarComunicadoAsync(
+            IEnumerable<string> destinatarios,
+            string assunto,
+            string corpo,
+            IEnumerable<EmailAttachment>? anexos = null)
         {
             if (!EstaConfigurado)
                 throw new InvalidOperationException($"Email não configurado. Configure Resend no Railway: {string.Join(", ", ObterVariaveisPendentes())}. SMTP direto só será usado se Smtp__Enabled=true.");
 
             if (ResendConfigurado)
             {
-                await EnviarViaResendAsync(destinatarios, assunto, corpo);
+                await EnviarViaResendAsync(destinatarios, assunto, corpo, anexos);
                 return;
             }
 
-            await EnviarViaSmtpAsync(destinatarios, assunto, corpo);
+            await EnviarViaSmtpAsync(destinatarios, assunto, corpo, anexos);
         }
 
-        private async Task EnviarViaResendAsync(IEnumerable<string> destinatarios, string assunto, string corpo)
+        private async Task EnviarViaResendAsync(
+            IEnumerable<string> destinatarios,
+            string assunto,
+            string corpo,
+            IEnumerable<EmailAttachment>? anexos)
         {
             using var httpClient = new HttpClient
             {
@@ -81,7 +89,12 @@ namespace TreinamentosManager.Services
                 to = destinatarios.ToArray(),
                 subject = assunto,
                 html = ConverterTextoParaHtml(corpo),
-                text = corpo
+                text = corpo,
+                attachments = anexos?.Select(a => new
+                {
+                    filename = a.FileName,
+                    content = Convert.ToBase64String(a.Content)
+                }).ToArray()
             };
 
             var response = await httpClient.PostAsync(
@@ -95,7 +108,11 @@ namespace TreinamentosManager.Services
             }
         }
 
-        private async Task EnviarViaSmtpAsync(IEnumerable<string> destinatarios, string assunto, string corpo)
+        private async Task EnviarViaSmtpAsync(
+            IEnumerable<string> destinatarios,
+            string assunto,
+            string corpo,
+            IEnumerable<EmailAttachment>? anexos)
         {
             var message = new MimeMessage();
             message.From.Add(new MailboxAddress(
@@ -108,11 +125,18 @@ namespace TreinamentosManager.Services
             }
 
             message.Subject = assunto;
-            message.Body = new BodyBuilder
+            var bodyBuilder = new BodyBuilder
             {
                 HtmlBody = ConverterTextoParaHtml(corpo),
                 TextBody = corpo
-            }.ToMessageBody();
+            };
+
+            foreach (var anexo in anexos ?? Enumerable.Empty<EmailAttachment>())
+            {
+                bodyBuilder.Attachments.Add(anexo.FileName, anexo.Content, ContentType.Parse(anexo.ContentType));
+            }
+
+            message.Body = bodyBuilder.ToMessageBody();
 
             using var client = new SmtpClient();
             client.Timeout = 15000;

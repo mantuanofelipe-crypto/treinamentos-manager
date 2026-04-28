@@ -13,11 +13,16 @@ namespace TreinamentosManager.Pages.Turmas
     {
         private readonly ApplicationDbContext _context;
         private readonly EmailService _emailService;
+        private readonly ConviteTemplateService _conviteTemplateService;
 
-        public ComunicadoModel(ApplicationDbContext context, EmailService emailService)
+        public ComunicadoModel(
+            ApplicationDbContext context,
+            EmailService emailService,
+            ConviteTemplateService conviteTemplateService)
         {
             _context = context;
             _emailService = emailService;
+            _conviteTemplateService = conviteTemplateService;
         }
 
         [BindProperty]
@@ -35,6 +40,9 @@ namespace TreinamentosManager.Pages.Turmas
         [Required]
         public string Conteudo { get; set; } = string.Empty;
 
+        [BindProperty]
+        public bool AnexarConvitePptx { get; set; } = true;
+
         [TempData]
         public string? Mensagem { get; set; }
 
@@ -50,7 +58,21 @@ namespace TreinamentosManager.Pages.Turmas
             TurmaId = turma.Id;
             Assunto = ComunicadoBuilder.CriarAssunto(turma);
             Conteudo = ComunicadoBuilder.CriarTexto(turma);
+            AnexarConvitePptx = true;
             return Page();
+        }
+
+        public async Task<IActionResult> OnGetDownloadAsync(int id)
+        {
+            var turma = await CarregarTurma(id);
+            if (turma == null)
+                return NotFound();
+
+            var bytes = _conviteTemplateService.GerarConvitePptx(turma);
+            return File(
+                bytes,
+                "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+                _conviteTemplateService.CriarNomeArquivo(turma));
         }
 
         public async Task<IActionResult> OnPostAsync()
@@ -65,7 +87,23 @@ namespace TreinamentosManager.Pages.Turmas
 
             try
             {
-                await _emailService.EnviarComunicadoAsync(emails, Assunto, Conteudo);
+                var anexos = new List<EmailAttachment>();
+
+                if (AnexarConvitePptx)
+                {
+                    var turma = await CarregarTurma(TurmaId);
+                    if (turma == null)
+                        return NotFound();
+
+                    anexos.Add(new EmailAttachment
+                    {
+                        FileName = _conviteTemplateService.CriarNomeArquivo(turma),
+                        ContentType = "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+                        Content = _conviteTemplateService.GerarConvitePptx(turma)
+                    });
+                }
+
+                await _emailService.EnviarComunicadoAsync(emails, Assunto, Conteudo, anexos);
                 TipoMensagem = "success";
                 Mensagem = $"Comunicado enviado para {emails.Count} destinatário(s).";
                 return RedirectToPage(new { id = TurmaId });

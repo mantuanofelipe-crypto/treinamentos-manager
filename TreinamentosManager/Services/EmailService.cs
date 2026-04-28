@@ -1,6 +1,9 @@
 using MailKit.Net.Smtp;
 using MailKit.Security;
 using MimeKit;
+using System.Net.Http.Headers;
+using System.Text;
+using System.Text.Json;
 using TreinamentosManager.Models;
 
 namespace TreinamentosManager.Services
@@ -15,6 +18,14 @@ namespace TreinamentosManager.Services
         }
 
         public bool EstaConfigurado =>
+            ResendConfigurado ||
+            SmtpConfigurado;
+
+        private bool ResendConfigurado =>
+            ValorConfigurado("Resend:ApiKey") &&
+            ValorConfigurado("Resend:FromEmail");
+
+        private bool SmtpConfigurado =>
             ValorConfigurado("Smtp:Host") &&
             ValorConfigurado("Smtp:Port") &&
             ValorConfigurado("Smtp:FromEmail");
@@ -23,9 +34,18 @@ namespace TreinamentosManager.Services
         {
             var pendentes = new List<string>();
 
-            AdicionarSePendente(pendentes, "Smtp:Host", "Smtp__Host");
-            AdicionarSePendente(pendentes, "Smtp:Port", "Smtp__Port");
-            AdicionarSePendente(pendentes, "Smtp:FromEmail", "Smtp__FromEmail");
+            if (!ResendConfigurado)
+            {
+                AdicionarSePendente(pendentes, "Resend:ApiKey", "Resend__ApiKey");
+                AdicionarSePendente(pendentes, "Resend:FromEmail", "Resend__FromEmail");
+            }
+
+            if (!SmtpConfigurado)
+            {
+                AdicionarSePendente(pendentes, "Smtp:Host", "Smtp__Host");
+                AdicionarSePendente(pendentes, "Smtp:Port", "Smtp__Port");
+                AdicionarSePendente(pendentes, "Smtp:FromEmail", "Smtp__FromEmail");
+            }
 
             return pendentes;
         }
@@ -33,8 +53,49 @@ namespace TreinamentosManager.Services
         public async Task EnviarComunicadoAsync(IEnumerable<string> destinatarios, string assunto, string corpo)
         {
             if (!EstaConfigurado)
-                throw new InvalidOperationException($"SMTP não configurado. Verifique: {string.Join(", ", ObterVariaveisPendentes())}");
+                throw new InvalidOperationException($"Email não configurado. Use Resend ou SMTP. Verifique: {string.Join(", ", ObterVariaveisPendentes())}");
 
+            if (ResendConfigurado)
+            {
+                await EnviarViaResendAsync(destinatarios, assunto, corpo);
+                return;
+            }
+
+            await EnviarViaSmtpAsync(destinatarios, assunto, corpo);
+        }
+
+        private async Task EnviarViaResendAsync(IEnumerable<string> destinatarios, string assunto, string corpo)
+        {
+            using var httpClient = new HttpClient
+            {
+                Timeout = TimeSpan.FromSeconds(30)
+            };
+
+            httpClient.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", _configuration["Resend:ApiKey"]);
+
+            var payload = new
+            {
+                from = $"{_configuration["Resend:FromName"] ?? "Desk Class"} <{_configuration["Resend:FromEmail"]}>",
+                to = destinatarios.ToArray(),
+                subject = assunto,
+                html = ConverterTextoParaHtml(corpo),
+                text = corpo
+            };
+
+            var response = await httpClient.PostAsync(
+                "https://api.resend.com/emails",
+                new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json"));
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var responseBody = await response.Content.ReadAsStringAsync();
+                throw new InvalidOperationException($"Resend retornou {(int)response.StatusCode}: {responseBody}");
+            }
+        }
+
+        private async Task EnviarViaSmtpAsync(IEnumerable<string> destinatarios, string assunto, string corpo)
+        {
             var message = new MimeMessage();
             message.From.Add(new MailboxAddress(
                 _configuration["Smtp:FromName"] ?? "Desk Class",
@@ -53,6 +114,7 @@ namespace TreinamentosManager.Services
             }.ToMessageBody();
 
             using var client = new SmtpClient();
+            client.Timeout = 15000;
             var port = int.Parse(_configuration["Smtp:Port"]!);
             var secureSocketOptions = ObterSegurancaSmtp(port);
 

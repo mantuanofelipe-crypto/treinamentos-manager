@@ -1,0 +1,42 @@
+@page "{id:int}"
+@model TreinamentosManager.Pages.Softwares.DeleteModel
+@{
+    ViewData["Title"] = "Excluir Software";
+}
+
+<div class="card shadow-sm">
+    <div class="card-header-dk d-flex align-items-center gap-2">
+        <i class="fas fa-trash"></i>
+        <h5 class="mb-0">Excluir Software</h5>
+    </div>
+    <div class="card-body p-4">
+        @if (!string.IsNullOrWhiteSpace(Model.Erro))
+        {
+            <div class="alert alert-warning">@Model.Erro</div>
+        }
+        else
+        {
+            <div class="alert alert-danger">Tem certeza que deseja excluir este software?</div>
+        }
+
+        <dl class="row">
+            <dt class="col-sm-3">Software</dt>
+            <dd class="col-sm-9">@Model.Software.Nome</dd>
+            <dt class="col-sm-3">Turmas vinculadas</dt>
+            <dd class="col-sm-9">@Model.TotalTurmas</dd>
+            <dt class="col-sm-3">Certificações vinculadas</dt>
+            <dd class="col-sm-9">@Model.TotalCertificacoes</dd>
+        </dl>
+
+        <div class="section-divider"></div>
+        <form method="post" class="d-flex gap-2">
+            <input type="hidden" asp-for="Software.Id" />
+            <button type="submit" class="btn btn-danger btn-lg px-4" disabled="@(Model.TotalTurmas > 0 || Model.TotalCertificacoes > 0 ? "disabled" : null)">
+                <i class="fas fa-trash me-1"></i> Excluir
+            </button>
+            <a asp-page="./Index" class="btn btn-dk-secondary btn-lg px-4">
+                <i class="fas fa-arrow-left me-1"></i> Voltar
+            </a>
+        </form>
+    </div>
+</div>

@@ -29,6 +29,9 @@ namespace TreinamentosManager.Models
         [Display(Name = "Tipo de Cliente")]
         public string TipoCliente { get; set; } = "Turmas Gerenciável";
 
+        [Display(Name = "Conformidade")]
+        public string? Conformidade { get; set; }
+
         // Relacionamento com Cliente
         [Required]
         public int ClienteId { get; set; }

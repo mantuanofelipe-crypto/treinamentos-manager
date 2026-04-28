@@ -68,6 +68,7 @@ namespace TreinamentosManager.Pages.Turmas
             turma.CargaHoraria = Turma.CargaHoraria;
             turma.Modalidade = Turma.Modalidade;
             turma.TipoCliente = Turma.TipoCliente;
+            turma.Conformidade = Turma.Conformidade;
             turma.ClienteId = Turma.ClienteId;
             turma.SoftwareId = Turma.SoftwareId;
             turma.Inicio = Turma.Inicio;

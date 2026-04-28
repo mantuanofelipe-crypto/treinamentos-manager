@@ -28,6 +28,10 @@
                 <div class="fw-semibold">@Model.Turma.TipoCliente</div>
             </div>
             <div class="col-md-4">
+                <div class="text-muted small">Conformidade</div>
+                <div class="fw-semibold">@(Model.Turma.Conformidade ?? "-")</div>
+            </div>
+            <div class="col-md-4">
                 <div class="text-muted small">Carga Horaria</div>
                 <div class="fw-semibold">@Model.Turma.CargaHoraria h</div>
             </div>

@@ -1,0 +1,104 @@
+@page
+@model TreinamentosManager.Pages.Calendario.IndexModel
+@{
+    ViewData["Title"] = "Calendário";
+}
+
+<div class="card shadow-sm mb-3">
+    <div class="card-header-dk d-flex justify-content-between align-items-center">
+        <h5 class="mb-0"><i class="fas fa-calendar-alt me-2"></i>Calendário de Aulas</h5>
+        <div class="d-flex gap-2">
+            <a asp-page="./Index"
+               asp-route-ano="@Model.MesAnterior.Year"
+               asp-route-mes="@Model.MesAnterior.Month"
+               asp-route-clienteId="@Model.FiltroClienteId"
+               asp-route-tipoCliente="@Model.FiltroTipoCliente"
+               asp-route-modalidade="@Model.FiltroModalidade"
+               asp-route-instrutorId="@Model.FiltroInstrutorId"
+               class="btn btn-dk-secondary btn-sm">
+                <i class="fas fa-chevron-left"></i>
+            </a>
+            <span class="btn btn-outline-light btn-sm disabled">@Model.MesAtual.ToString("MMMM yyyy")</span>
+            <a asp-page="./Index"
+               asp-route-ano="@Model.ProximoMes.Year"
+               asp-route-mes="@Model.ProximoMes.Month"
+               asp-route-clienteId="@Model.FiltroClienteId"
+               asp-route-tipoCliente="@Model.FiltroTipoCliente"
+               asp-route-modalidade="@Model.FiltroModalidade"
+               asp-route-instrutorId="@Model.FiltroInstrutorId"
+               class="btn btn-dk-secondary btn-sm">
+                <i class="fas fa-chevron-right"></i>
+            </a>
+        </div>
+    </div>
+
+    <div class="card-body pb-0">
+        <form method="get" class="row g-2 mb-3">
+            <input type="hidden" name="ano" value="@Model.MesAtual.Year" />
+            <input type="hidden" name="mes" value="@Model.MesAtual.Month" />
+            <div class="col-md-3">
+                <select name="clienteId" class="form-select form-select-sm">
+                    <option value="">Todos os clientes</option>
+                    @foreach (var cliente in Model.Clientes)
+                    {
+                        <option value="@cliente.Id" selected="@(Model.FiltroClienteId == cliente.Id)">@cliente.Nome</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select name="tipoCliente" class="form-select form-select-sm">
+                    <option value="">Todos os tipos</option>
+                    <option value="Turmas Gerenciável" selected="@(Model.FiltroTipoCliente == "Turmas Gerenciável")">Turmas Gerenciável</option>
+                    <option value="Turmas Abertas" selected="@(Model.FiltroTipoCliente == "Turmas Abertas")">Turmas Abertas</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select name="modalidade" class="form-select form-select-sm">
+                    <option value="">Todas as modalidades</option>
+                    <option value="Presencial" selected="@(Model.FiltroModalidade == "Presencial")">Presencial</option>
+                    <option value="Online" selected="@(Model.FiltroModalidade == "Online")">Online</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select name="instrutorId" class="form-select form-select-sm">
+                    <option value="">Todos os instrutores</option>
+                    @foreach (var instrutor in Model.Instrutores)
+                    {
+                        <option value="@instrutor.Id" selected="@(Model.FiltroInstrutorId == instrutor.Id)">@instrutor.Nome</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-1">
+                <button type="submit" class="btn btn-dk-primary btn-sm w-100">
+                    <i class="fas fa-filter"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <div class="card-body pt-0">
+        <div class="calendar-grid">
+            @foreach (var diaSemana in Model.DiasSemana)
+            {
+                <div class="calendar-weekday">@diaSemana</div>
+            }
+
+            @foreach (var dia in Model.Dias)
+            {
+                <div class="calendar-day @(dia.EhMesAtual ? "" : "calendar-day-muted") @(dia.Data.Date == DateTime.Today ? "calendar-day-today" : "")">
+                    <div class="calendar-day-number">@dia.Data.Day</div>
+                    <div class="calendar-events">
+                        @foreach (var evento in dia.Eventos)
+                        {
+                            <a asp-page="/Turmas/Details" asp-route-id="@evento.TurmaId" class="calendar-event">
+                                <span class="calendar-event-time">@evento.Inicio.ToString("HH:mm")</span>
+                                <span class="calendar-event-title">@evento.Cliente</span>
+                                <span class="calendar-event-meta">@evento.Software • @evento.Instrutor</span>
+                            </a>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>

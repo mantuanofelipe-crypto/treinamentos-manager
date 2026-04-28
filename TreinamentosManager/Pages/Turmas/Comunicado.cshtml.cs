@@ -41,7 +41,7 @@ namespace TreinamentosManager.Pages.Turmas
         public string Conteudo { get; set; } = string.Empty;
 
         [BindProperty]
-        public bool AnexarConvitePptx { get; set; } = true;
+        public bool AnexarConvitePptx { get; set; }
 
         [TempData]
         public string? Mensagem { get; set; }
@@ -58,7 +58,7 @@ namespace TreinamentosManager.Pages.Turmas
             TurmaId = turma.Id;
             Assunto = ComunicadoBuilder.CriarAssunto(turma);
             Conteudo = ComunicadoBuilder.CriarTexto(turma);
-            AnexarConvitePptx = true;
+            AnexarConvitePptx = false;
             return Page();
         }
 
@@ -87,14 +87,15 @@ namespace TreinamentosManager.Pages.Turmas
 
             try
             {
+                var turma = await CarregarTurma(TurmaId);
+                if (turma == null)
+                    return NotFound();
+
                 var anexos = new List<EmailAttachment>();
+                anexos.AddRange(_conviteTemplateService.CriarImagensInlineEmail());
 
                 if (AnexarConvitePptx)
                 {
-                    var turma = await CarregarTurma(TurmaId);
-                    if (turma == null)
-                        return NotFound();
-
                     anexos.Add(new EmailAttachment
                     {
                         FileName = _conviteTemplateService.CriarNomeArquivo(turma),
@@ -103,7 +104,8 @@ namespace TreinamentosManager.Pages.Turmas
                     });
                 }
 
-                await _emailService.EnviarComunicadoAsync(emails, Assunto, Conteudo, anexos);
+                var conviteHtml = _conviteTemplateService.CriarHtmlEmail(turma);
+                await _emailService.EnviarComunicadoAsync(emails, Assunto, Conteudo, anexos, conviteHtml);
                 TipoMensagem = "success";
                 Mensagem = $"Comunicado enviado para {emails.Count} destinatário(s).";
                 return RedirectToPage(new { id = TurmaId });

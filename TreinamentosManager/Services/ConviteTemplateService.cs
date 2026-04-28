@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.IO.Compression;
 using System.Net;
 using System.Text;
@@ -67,23 +68,155 @@ namespace TreinamentosManager.Services
             return $"Convite - {LimparNomeArquivo(curso)} - {LimparNomeArquivo(cliente)}.pptx";
         }
 
+        public string CriarHtmlEmail(Turma turma)
+        {
+            var dados = CriarDados(turma);
+
+            return $"""
+                <div style="margin:0;padding:0;background:#f3f4f6;">
+                  <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="border-collapse:collapse;background:#f3f4f6;margin:0;padding:0;">
+                    <tr>
+                      <td align="center" style="padding:24px 12px;">
+                        <table role="presentation" cellpadding="0" cellspacing="0" width="760" style="border-collapse:collapse;width:760px;max-width:100%;background:#ffffff;font-family:Arial,Helvetica,sans-serif;color:#4f4f4f;">
+                          <tr>
+                            <td style="padding:0;background:#ffffff;">
+                              <img src="cid:convite-hero" alt="" width="760" style="display:block;width:100%;max-width:760px;height:auto;border:0;">
+                            </td>
+                          </tr>
+                          <tr>
+                            <td style="padding:28px 34px 18px 34px;">
+                              <img src="cid:convite-logo" alt="Deskgraphics Consulting" width="300" style="display:block;width:300px;max-width:72%;height:auto;border:0;margin:0 0 22px 0;">
+                              <div style="font-size:34px;line-height:36px;font-weight:700;color:#585858;letter-spacing:0;text-transform:uppercase;margin:0 0 18px 0;">Convite<br>de treinamento</div>
+                              <div style="font-size:15px;line-height:23px;color:#555555;margin:0 0 18px 0;">
+                                Caro(a) aluno(a), você foi inscrito(a) para participar do treinamento de
+                                <strong style="color:#343434;">{Html(dados.Curso)}</strong>.
+                                Venha participar dessa jornada de conhecimento com a <strong>Deskgraphics</strong>.
+                                Para esclarecimento de dúvidas contatar:
+                                <a href="mailto:treinamento@deskgraphics.com.br" style="color:#6b6b6b;text-decoration:underline;">treinamento@deskgraphics.com.br</a>.
+                              </div>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td style="padding:0 34px 0 34px;">
+                              <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="border-collapse:collapse;">
+                                <tr>
+                                  <td style="background:#f2d600;height:12px;line-height:12px;font-size:1px;">&nbsp;</td>
+                                </tr>
+                              </table>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td style="padding:24px 34px 8px 34px;">
+                              <div style="font-size:18px;line-height:22px;font-weight:700;color:#565656;text-transform:uppercase;margin:0 0 14px 0;">Treinamento ao vivo on-line</div>
+                              <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="border-collapse:collapse;">
+                                <tr>
+                                  <td style="font-size:15px;line-height:22px;color:#555555;padding:0 0 14px 0;">
+                                    <strong style="color:#343434;">{Html(dados.Instrutor)}</strong>
+                                    <span style="color:#888888;">..................................................</span>
+                                    Instrutor Técnico Especialista
+                                  </td>
+                                </tr>
+                                <tr>
+                                  <td style="font-size:15px;line-height:22px;color:#555555;padding:0 0 14px 0;">
+                                    Aulas gravadas disponíveis em até 24 horas na nossa plataforma de vídeos <strong>DeskHub</strong>.
+                                    Acesse: <a href="https://deskhub.deskgraphics.com.br" style="color:#6b6b6b;text-decoration:underline;">https://deskhub.deskgraphics.com.br</a>
+                                  </td>
+                                </tr>
+                              </table>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td style="padding:8px 34px 0 34px;">
+                              <table role="presentation" cellpadding="0" cellspacing="0" width="100%" style="border-collapse:collapse;background:#5c5c5c;">
+                                <tr>
+                                  <td style="padding:18px 20px;color:#ffffff;">
+                                    <div style="font-size:14px;line-height:18px;font-weight:700;text-transform:uppercase;margin:0 0 8px 0;">Será transmitido pela plataforma Microsoft Teams</div>
+                                    <div style="font-size:18px;line-height:24px;font-weight:700;margin:0;">{Html(dados.DiasSemana)} das {Html(dados.HoraInicio)} às {Html(dados.HoraFim)}</div>
+                                  </td>
+                                </tr>
+                              </table>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td style="padding:22px 34px 12px 34px;">
+                              <div style="font-size:18px;line-height:22px;font-weight:700;color:#565656;text-transform:uppercase;margin:0 0 10px 0;">Disponibilidade das gravações</div>
+                              <div style="font-size:15px;line-height:23px;color:#555555;margin:0 0 16px 0;">
+                                Carga horária total do treinamento: <strong>{Html(dados.CargaHoraria)}</strong><br>
+                                {Html(dados.DataInicio)} a {Html(dados.DataFim)}
+                              </div>
+                              <div style="font-size:14px;line-height:21px;color:#555555;margin:0 0 16px 0;">
+                                <strong>Datas das aulas:</strong><br>
+                                {CriarListaDatasHtml(dados.Datas, dados.InicioPadrao)}
+                              </div>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td style="padding:8px 34px 30px 34px;">
+                              <img src="cid:convite-autodesk" alt="Autodesk Authorized Training Center" width="690" style="display:block;width:100%;max-width:690px;height:auto;border:0;">
+                            </td>
+                          </tr>
+                        </table>
+                      </td>
+                    </tr>
+                  </table>
+                </div>
+                """;
+        }
+
+        public List<EmailAttachment> CriarImagensInlineEmail()
+        {
+            return new List<EmailAttachment>
+            {
+                CriarImagemInline("image1.jpg", "image/jpeg", "convite-hero"),
+                CriarImagemInline("image2.png", "image/png", "convite-logo"),
+                CriarImagemInline("image3.png", "image/png", "convite-autodesk")
+            };
+        }
+
         private static Dictionary<string, string> CriarSubstituicoes(Turma turma)
         {
-            var datas = turma.Datas.OrderBy(d => d.Data).ToList();
-            var primeiraData = datas.FirstOrDefault()?.Data ?? turma.Inicio;
-            var primeiraFim = datas.FirstOrDefault()?.Fim ?? turma.Fim;
-            var ultimaData = datas.LastOrDefault()?.Data ?? turma.Fim;
+            var dados = CriarDados(turma);
 
             return new Dictionary<string, string>
             {
-                ["<Nome do curso>"] = turma.Software?.Nome ?? "",
-                ["<Instrutor>"] = turma.Instrutor?.Nome ?? "",
-                ["<Dias da semana>"] = turma.DiasDaSemana ?? CriarDiasDaSemana(datas),
-                ["<Hora início>"] = primeiraData.ToString("HH:mm"),
-                ["<Hora fim>"] = primeiraFim.ToString("HH:mm"),
-                ["<Carga Horária>"] = $"{turma.CargaHoraria}h",
-                ["<Data inicio>"] = primeiraData.ToString("dd/MM/yyyy"),
-                ["<Data fim>"] = ultimaData.ToString("dd/MM/yyyy")
+                ["<Nome do curso>"] = dados.Curso,
+                ["<Instrutor>"] = dados.Instrutor,
+                ["<Dias da semana>"] = dados.DiasSemana,
+                ["<Hora início>"] = dados.HoraInicio,
+                ["<Hora inicio>"] = dados.HoraInicio,
+                ["<Hora in\u00edcio>"] = dados.HoraInicio,
+                ["<Hora fim>"] = dados.HoraFim,
+                ["<Carga Horária>"] = dados.CargaHoraria,
+                ["<Carga Horaria>"] = dados.CargaHoraria,
+                ["<Carga Hor\u00e1ria>"] = dados.CargaHoraria,
+                ["<Data inicio>"] = dados.DataInicio,
+                ["<Data início>"] = dados.DataInicio,
+                ["<Data fim>"] = dados.DataFim
+            };
+        }
+
+        private static ConviteDados CriarDados(Turma turma)
+        {
+            var datas = turma.Datas.OrderBy(d => d.Data).ToList();
+            var primeiroEncontro = datas.FirstOrDefault();
+            var primeiraData = NormalizarHorario(primeiroEncontro?.Data ?? turma.Inicio, turma.Inicio);
+            var primeiraFim = primeiroEncontro != null
+                ? primeiraData.AddHours((double)primeiroEncontro.DuracaoHoras)
+                : turma.Fim;
+            var ultimaData = datas.LastOrDefault()?.Data ?? turma.Fim;
+
+            return new ConviteDados
+            {
+                Curso = turma.Software?.Nome ?? "",
+                Instrutor = turma.Instrutor?.Nome ?? "",
+                DiasSemana = !string.IsNullOrWhiteSpace(turma.DiasDaSemana) ? turma.DiasDaSemana : CriarDiasDaSemana(datas),
+                HoraInicio = primeiraData.ToString("HH:mm"),
+                HoraFim = primeiraFim.ToString("HH:mm"),
+                CargaHoraria = $"{turma.CargaHoraria}h",
+                DataInicio = primeiraData.ToString("dd/MM/yyyy"),
+                DataFim = ultimaData.ToString("dd/MM/yyyy"),
+                Datas = datas,
+                InicioPadrao = turma.Inicio
             };
         }
 
@@ -92,7 +225,7 @@ namespace TreinamentosManager.Services
             if (!datas.Any())
                 return "";
 
-            var cultura = System.Globalization.CultureInfo.GetCultureInfo("pt-BR");
+            var cultura = CultureInfo.GetCultureInfo("pt-BR");
             return string.Join(", ", datas
                 .Select(d => cultura.DateTimeFormat.GetDayName(d.Data.DayOfWeek))
                 .Distinct());
@@ -103,12 +236,68 @@ namespace TreinamentosManager.Services
             return WebUtility.HtmlEncode(value ?? string.Empty);
         }
 
+        private EmailAttachment CriarImagemInline(string fileName, string contentType, string contentId)
+        {
+            var path = Path.Combine(_environment.ContentRootPath, "wwwroot", "images", "convite-template", fileName);
+            if (!File.Exists(path))
+                throw new FileNotFoundException("Imagem do convite não encontrada.", path);
+
+            return new EmailAttachment
+            {
+                FileName = fileName,
+                ContentType = contentType,
+                ContentId = contentId,
+                Content = File.ReadAllBytes(path)
+            };
+        }
+
+        private static string CriarListaDatasHtml(List<TurmaData> datas, DateTime inicioPadrao)
+        {
+            if (!datas.Any())
+                return "- Datas a confirmar";
+
+            var cultura = CultureInfo.GetCultureInfo("pt-BR");
+            return string.Join("<br>", datas.Select(d =>
+            {
+                var inicio = NormalizarHorario(d.Data, inicioPadrao);
+                var fim = inicio.AddHours((double)d.DuracaoHoras);
+                return $"{Html(inicio.ToString("dd/MM/yyyy HH:mm"))} às {Html(fim.ToString("HH:mm"))} ({Html(d.DuracaoHoras.ToString("0.##", cultura))}h)";
+            }));
+        }
+
+        private static string Html(string? value)
+        {
+            return WebUtility.HtmlEncode(value ?? string.Empty);
+        }
+
+        private static DateTime NormalizarHorario(DateTime data, DateTime inicioPadrao)
+        {
+            if (data.TimeOfDay == TimeSpan.Zero && inicioPadrao.TimeOfDay != TimeSpan.Zero)
+                return data.Date.Add(inicioPadrao.TimeOfDay);
+
+            return data;
+        }
+
         private static string LimparNomeArquivo(string value)
         {
             foreach (var invalid in Path.GetInvalidFileNameChars())
                 value = value.Replace(invalid, '-');
 
             return value.Trim();
+        }
+
+        private class ConviteDados
+        {
+            public string Curso { get; set; } = string.Empty;
+            public string Instrutor { get; set; } = string.Empty;
+            public string DiasSemana { get; set; } = string.Empty;
+            public string HoraInicio { get; set; } = string.Empty;
+            public string HoraFim { get; set; } = string.Empty;
+            public string CargaHoraria { get; set; } = string.Empty;
+            public string DataInicio { get; set; } = string.Empty;
+            public string DataFim { get; set; } = string.Empty;
+            public List<TurmaData> Datas { get; set; } = new();
+            public DateTime InicioPadrao { get; set; }
         }
     }
 }

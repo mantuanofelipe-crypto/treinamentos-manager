@@ -55,25 +55,27 @@ namespace TreinamentosManager.Services
             IEnumerable<string> destinatarios,
             string assunto,
             string corpo,
-            IEnumerable<EmailAttachment>? anexos = null)
+            IEnumerable<EmailAttachment>? anexos = null,
+            string? corpoHtml = null)
         {
             if (!EstaConfigurado)
                 throw new InvalidOperationException($"Email não configurado. Configure Resend no Railway: {string.Join(", ", ObterVariaveisPendentes())}. SMTP direto só será usado se Smtp__Enabled=true.");
 
             if (ResendConfigurado)
             {
-                await EnviarViaResendAsync(destinatarios, assunto, corpo, anexos);
+                await EnviarViaResendAsync(destinatarios, assunto, corpo, anexos, corpoHtml);
                 return;
             }
 
-            await EnviarViaSmtpAsync(destinatarios, assunto, corpo, anexos);
+            await EnviarViaSmtpAsync(destinatarios, assunto, corpo, anexos, corpoHtml);
         }
 
         private async Task EnviarViaResendAsync(
             IEnumerable<string> destinatarios,
             string assunto,
             string corpo,
-            IEnumerable<EmailAttachment>? anexos)
+            IEnumerable<EmailAttachment>? anexos,
+            string? corpoHtml)
         {
             using var httpClient = new HttpClient
             {
@@ -88,13 +90,9 @@ namespace TreinamentosManager.Services
                 from = $"{_configuration["Resend:FromName"] ?? "Desk Class"} <{_configuration["Resend:FromEmail"]}>",
                 to = destinatarios.ToArray(),
                 subject = assunto,
-                html = ConverterTextoParaHtml(corpo),
+                html = corpoHtml ?? ConverterTextoParaHtml(corpo),
                 text = corpo,
-                attachments = anexos?.Select(a => new
-                {
-                    filename = a.FileName,
-                    content = Convert.ToBase64String(a.Content)
-                }).ToArray()
+                attachments = anexos?.Select(CriarAnexoResend).ToArray()
             };
 
             var response = await httpClient.PostAsync(
@@ -112,7 +110,8 @@ namespace TreinamentosManager.Services
             IEnumerable<string> destinatarios,
             string assunto,
             string corpo,
-            IEnumerable<EmailAttachment>? anexos)
+            IEnumerable<EmailAttachment>? anexos,
+            string? corpoHtml)
         {
             var message = new MimeMessage();
             message.From.Add(new MailboxAddress(
@@ -127,12 +126,19 @@ namespace TreinamentosManager.Services
             message.Subject = assunto;
             var bodyBuilder = new BodyBuilder
             {
-                HtmlBody = ConverterTextoParaHtml(corpo),
+                HtmlBody = corpoHtml ?? ConverterTextoParaHtml(corpo),
                 TextBody = corpo
             };
 
             foreach (var anexo in anexos ?? Enumerable.Empty<EmailAttachment>())
             {
+                if (anexo.Inline)
+                {
+                    var recurso = bodyBuilder.LinkedResources.Add(anexo.FileName, anexo.Content, ContentType.Parse(anexo.ContentType));
+                    recurso.ContentId = anexo.ContentId;
+                    continue;
+                }
+
                 bodyBuilder.Attachments.Add(anexo.FileName, anexo.Content, ContentType.Parse(anexo.ContentType));
             }
 
@@ -192,6 +198,21 @@ namespace TreinamentosManager.Services
             return "<div style=\"font-family:Arial,sans-serif;font-size:14px;line-height:1.45\">" +
                    System.Net.WebUtility.HtmlEncode(texto).Replace("\n", "<br>") +
                    "</div>";
+        }
+
+        private static Dictionary<string, object> CriarAnexoResend(EmailAttachment anexo)
+        {
+            var payload = new Dictionary<string, object>
+            {
+                ["filename"] = anexo.FileName,
+                ["content"] = Convert.ToBase64String(anexo.Content),
+                ["content_type"] = anexo.ContentType
+            };
+
+            if (anexo.Inline)
+                payload["content_id"] = anexo.ContentId!;
+
+            return payload;
         }
 
         private static SecureSocketOptions ObterSegurancaSmtp(int port)

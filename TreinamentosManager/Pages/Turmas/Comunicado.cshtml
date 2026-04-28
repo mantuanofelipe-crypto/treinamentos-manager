@@ -32,7 +32,8 @@
             </div>
 
             <div class="mb-3">
-                <label asp-for="Conteudo" class="form-label form-label-dk">Convite</label>
+                <label asp-for="Conteudo" class="form-label form-label-dk">Texto do convite</label>
+                <div class="form-text mb-2">O email será enviado com a arte do convite no corpo. Este texto fica como versão simples do email.</div>
                 <textarea asp-for="Conteudo" class="form-control comunicado-textarea" rows="22"></textarea>
                 <span asp-validation-for="Conteudo" class="text-danger small"></span>
             </div>
@@ -40,7 +41,7 @@
             <div class="d-flex flex-wrap align-items-center gap-3 mb-3">
                 <div class="form-check">
                     <input asp-for="AnexarConvitePptx" class="form-check-input" />
-                    <label asp-for="AnexarConvitePptx" class="form-check-label">Anexar convite com a arte original</label>
+                    <label asp-for="AnexarConvitePptx" class="form-check-label">Também anexar convite em PowerPoint</label>
                 </div>
                 <a asp-page-handler="Download" asp-route-id="@Model.TurmaId" class="btn btn-outline-secondary btn-sm">
                     <i class="fas fa-download me-1"></i> Baixar convite personalizado

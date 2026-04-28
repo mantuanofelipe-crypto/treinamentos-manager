@@ -13,9 +13,12 @@ namespace TreinamentosManager.Services.Comunicados
         public static string CriarTexto(Turma turma)
         {
             var datas = turma.Datas.OrderBy(d => d.Data).ToList();
-            var primeiraData = datas.FirstOrDefault()?.Data ?? turma.Inicio;
+            var primeiroEncontro = datas.FirstOrDefault();
+            var primeiraData = NormalizarHorario(primeiroEncontro?.Data ?? turma.Inicio, turma.Inicio);
             var ultimaData = datas.LastOrDefault()?.Data ?? turma.Fim;
-            var primeiroFim = datas.FirstOrDefault()?.Fim ?? turma.Fim;
+            var primeiroFim = primeiroEncontro != null
+                ? primeiraData.AddHours((double)primeiroEncontro.DuracaoHoras)
+                : turma.Fim;
 
             var diasSemana = !string.IsNullOrWhiteSpace(turma.DiasDaSemana)
                 ? turma.DiasDaSemana
@@ -49,16 +52,29 @@ namespace TreinamentosManager.Services.Comunicados
                 {primeiraData:dd/MM/yyyy} a {ultimaData:dd/MM/yyyy}
 
                 Datas das aulas:
-                {CriarListaDatas(datas)}
+                {CriarListaDatas(datas, turma.Inicio)}
                 """;
         }
 
-        private static string CriarListaDatas(List<TurmaData> datas)
+        private static string CriarListaDatas(List<TurmaData> datas, DateTime inicioPadrao)
         {
             if (!datas.Any())
                 return "- Datas a confirmar";
 
-            return string.Join("\n", datas.Select(d => $"- {d.Data:dd/MM/yyyy HH:mm} às {d.Fim:HH:mm} ({d.DuracaoHoras:0.##}h)"));
+            return string.Join("\n", datas.Select(d =>
+            {
+                var inicio = NormalizarHorario(d.Data, inicioPadrao);
+                var fim = inicio.AddHours((double)d.DuracaoHoras);
+                return $"- {inicio:dd/MM/yyyy HH:mm} às {fim:HH:mm} ({d.DuracaoHoras:0.##}h)";
+            }));
+        }
+
+        private static DateTime NormalizarHorario(DateTime data, DateTime inicioPadrao)
+        {
+            if (data.TimeOfDay == TimeSpan.Zero && inicioPadrao.TimeOfDay != TimeSpan.Zero)
+                return data.Date.Add(inicioPadrao.TimeOfDay);
+
+            return data;
         }
     }
 }

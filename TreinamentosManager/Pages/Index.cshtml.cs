@@ -19,39 +19,37 @@ public class IndexModel : PageModel
     public int TurmasEmAndamento { get; set; }
     public int TurmasFuturas { get; set; }
     public int TotalClientes { get; set; }
-    public int PrevisaoAtual { get; set; }
-    public int PrevisaoFutura { get; set; }
+    public decimal PrevisaoAtual { get; set; }
+    public decimal PrevisaoFutura { get; set; }
 
     public List<string> GraficoLabels { get; set; } = new();
-    public List<int> GraficoHistorico { get; set; } = new();
-    public List<int?> GraficoTendencia { get; set; } = new();
-    public List<int> GraficoPresencial { get; set; } = new();
-    public List<int?> GraficoPresencialTendencia { get; set; } = new();
-    public List<int> GraficoOnline { get; set; } = new();
-    public List<int?> GraficoOnlineTendencia { get; set; } = new();
-    public List<int> GraficoGerenciavel { get; set; } = new();
-    public List<int?> GraficoGerenciavelTendencia { get; set; } = new();
-    public List<int> GraficoAbertas { get; set; } = new();
-    public List<int?> GraficoAbertasTendencia { get; set; } = new();
+    public List<decimal> GraficoHistorico { get; set; } = new();
+    public List<decimal?> GraficoTendencia { get; set; } = new();
+    public List<decimal> GraficoPresencial { get; set; } = new();
+    public List<decimal?> GraficoPresencialTendencia { get; set; } = new();
+    public List<decimal> GraficoOnline { get; set; } = new();
+    public List<decimal?> GraficoOnlineTendencia { get; set; } = new();
+    public List<decimal> GraficoGerenciavel { get; set; } = new();
+    public List<decimal?> GraficoGerenciavelTendencia { get; set; } = new();
+    public List<decimal> GraficoAbertas { get; set; } = new();
+    public List<decimal?> GraficoAbertasTendencia { get; set; } = new();
 
     public async Task OnGetAsync()
     {
         var now = DateTime.Now;
-        var turmas = await _context.Turmas.ToListAsync();
+        var turmas = await _context.Turmas
+            .Include(t => t.Datas)
+            .ToListAsync();
 
         TurmasAtivas = turmas.Count(t => t.Fim < now);
         TurmasEmAndamento = turmas.Count(t => t.Inicio <= now && t.Fim >= now);
         TurmasFuturas = turmas.Count(t => t.Inicio > now);
         TotalClientes = await _context.Clientes.CountAsync();
 
-        PrevisaoAtual = turmas
-            .Where(t => t.Fim.Year == now.Year && t.Fim.Month == now.Month)
-            .Sum(t => t.CargaHoraria);
+        PrevisaoAtual = CalcularAlocacaoMes(turmas, now.Year, now.Month);
 
         var proximo = now.AddMonths(1);
-        PrevisaoFutura = turmas
-            .Where(t => t.Fim.Year == proximo.Year && t.Fim.Month == proximo.Month)
-            .Sum(t => t.CargaHoraria);
+        PrevisaoFutura = CalcularAlocacaoMes(turmas, proximo.Year, proximo.Month);
 
         var mesAtual = new DateTime(now.Year, now.Month, 1);
         var inicio = mesAtual.AddMonths(-6);
@@ -62,29 +60,27 @@ public class IndexModel : PageModel
             var mes = m;
             var isFuturo = mes > mesAtual;
 
-            var todos = turmas.Where(t => t.Fim.Year == mes.Year && t.Fim.Month == mes.Month).ToList();
-            var presencial = todos.Where(t => t.Modalidade == "Presencial").Sum(t => t.CargaHoraria);
-            var online = todos.Where(t => t.Modalidade == "Online").Sum(t => t.CargaHoraria);
-            var gerenciavel = todos.Where(t => t.TipoCliente == "Turmas Gerenciável").Sum(t => t.CargaHoraria);
-            var abertas = todos.Where(t => t.TipoCliente == "Turmas Abertas").Sum(t => t.CargaHoraria);
-            var carga = todos.Sum(t => t.CargaHoraria);
+            var carga = CalcularAlocacaoMes(turmas, mes.Year, mes.Month);
+            var presencial = CalcularAlocacaoMes(turmas.Where(t => t.Modalidade == "Presencial"), mes.Year, mes.Month);
+            var online = CalcularAlocacaoMes(turmas.Where(t => t.Modalidade == "Online"), mes.Year, mes.Month);
+            var gerenciavel = CalcularAlocacaoMes(turmas.Where(t => t.TipoCliente == "Turmas Gerenciável"), mes.Year, mes.Month);
+            var abertas = CalcularAlocacaoMes(turmas.Where(t => t.TipoCliente == "Turmas Abertas"), mes.Year, mes.Month);
 
             GraficoLabels.Add(mes.ToString("MMM/yy"));
 
             GraficoHistorico.Add(isFuturo ? 0 : carga);
-            GraficoTendencia.Add(isFuturo ? carga : (int?)null);
+            GraficoTendencia.Add(isFuturo ? carga : (decimal?)null);
             GraficoPresencial.Add(isFuturo ? 0 : presencial);
-            GraficoPresencialTendencia.Add(isFuturo ? presencial : (int?)null);
+            GraficoPresencialTendencia.Add(isFuturo ? presencial : (decimal?)null);
             GraficoOnline.Add(isFuturo ? 0 : online);
-            GraficoOnlineTendencia.Add(isFuturo ? online : (int?)null);
+            GraficoOnlineTendencia.Add(isFuturo ? online : (decimal?)null);
             GraficoGerenciavel.Add(isFuturo ? 0 : gerenciavel);
-            GraficoGerenciavelTendencia.Add(isFuturo ? gerenciavel : (int?)null);
+            GraficoGerenciavelTendencia.Add(isFuturo ? gerenciavel : (decimal?)null);
             GraficoAbertas.Add(isFuturo ? 0 : abertas);
-            GraficoAbertasTendencia.Add(isFuturo ? abertas : (int?)null);
+            GraficoAbertasTendencia.Add(isFuturo ? abertas : (decimal?)null);
         }
 
-        // Conectar linhas históricas ao primeiro ponto de tendência
-        int pivot = GraficoLabels.Count - 4; // índice do mês atual (3 futuros no final)
+        var pivot = GraficoLabels.Count - 4;
         if (pivot >= 0 && pivot < GraficoLabels.Count)
         {
             GraficoTendencia[pivot] = GraficoHistorico[pivot];
@@ -93,5 +89,22 @@ public class IndexModel : PageModel
             GraficoGerenciavelTendencia[pivot] = GraficoGerenciavel[pivot];
             GraficoAbertasTendencia[pivot] = GraficoAbertas[pivot];
         }
+    }
+
+    private static decimal CalcularAlocacaoMes(IEnumerable<Turma> turmas, int ano, int mes)
+    {
+        return turmas.Sum(t =>
+        {
+            if (t.Datas.Any())
+            {
+                return t.Datas
+                    .Where(d => d.Data.Year == ano && d.Data.Month == mes)
+                    .Sum(d => d.DuracaoHoras);
+            }
+
+            return t.Inicio.Year == ano && t.Inicio.Month == mes
+                ? t.CargaHoraria
+                : 0m;
+        });
     }
 }

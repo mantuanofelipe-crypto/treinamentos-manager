@@ -7,9 +7,14 @@
 }
 
 <div class="card shadow-sm mb-3">
-    <div class="card-header-dk d-flex align-items-center gap-2">
-        <i class="fas fa-clipboard-check"></i>
-        <h5 class="mb-0">Conformidade</h5>
+    <div class="card-header-dk d-flex flex-wrap justify-content-between align-items-center gap-2">
+        <div class="d-flex align-items-center gap-2">
+            <i class="fas fa-clipboard-check"></i>
+            <h5 class="mb-0">Conformidade</h5>
+        </div>
+        <a asp-page="./Relatorio" class="btn btn-dk-primary btn-sm">
+            <i class="fas fa-chart-line me-1"></i>Gerar relatório
+        </a>
     </div>
     <div class="card-body">
         @if (!string.IsNullOrWhiteSpace(Model.Mensagem))
@@ -26,6 +31,13 @@
                     <option value="Concluída" selected="@(Model.FiltroStatus == "Concluída")">Concluída</option>
                 </select>
             </div>
+            <div class="col-md-3">
+                <select name="conformidade" class="form-select form-select-sm">
+                    <option value="">Todas as conformidades</option>
+                    <option value="100" selected="@(Model.FiltroConformidade == "100")">Conformidade 100%</option>
+                    <option value="menor100" selected="@(Model.FiltroConformidade == "menor100")">Conformidade menor que 100%</option>
+                </select>
+            </div>
             <div class="col-md-1">
                 <button type="submit" class="btn btn-dk-primary btn-sm w-100">
                     <i class="fas fa-filter"></i>
@@ -37,52 +49,60 @@
             @foreach (var turma in Model.Turmas)
             {
                 var conformidade = turma.ConformidadeDetalhes ?? new TurmaConformidade { TurmaId = turma.Id };
+                var collapseId = $"conformidade-{turma.Id}";
                 <div class="col-12">
-                    <form method="post" asp-page-handler="Salvar" class="border rounded p-3 bg-white">
+                    <form method="post" asp-page-handler="Salvar" class="border rounded bg-white">
                         <input type="hidden" name="Registro.TurmaId" value="@turma.Id" />
 
-                        <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
+                        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 p-3">
                             <div>
                                 <div class="fw-bold">@(string.IsNullOrWhiteSpace(turma.Nome) ? turma.Software?.Nome : turma.Nome)</div>
                                 <div class="text-muted small">
-                                    @(turma.Cliente?.Nome ?? "Cliente não informado") · @(turma.Instrutor?.Nome ?? "Instrutor não informado") · @turma.Inicio.ToString("dd/MM/yyyy")
+                                    @(turma.Cliente?.Nome ?? "Cliente não informado") · @(turma.Instrutor?.Nome ?? "Instrutor não informado") · @turma.Inicio.ToString("dd/MM/yy")
                                 </div>
                             </div>
-                            <div class="d-flex flex-wrap gap-2">
+                            <div class="d-flex flex-wrap align-items-center gap-2">
                                 <span class="badge bg-secondary">Instrutor: @IndexModel.FormatarPercentual(conformidade.ConformidadeInstrutor)</span>
                                 <span class="badge bg-secondary">Coordenação: @IndexModel.FormatarPercentual(conformidade.ConformidadeCoordenacao)</span>
                                 <span class="badge bg-primary">Geral: @IndexModel.FormatarPercentual(conformidade.ConformidadeGeral)</span>
+                                <button class="btn btn-outline-secondary btn-sm js-collapse-label" type="button" data-bs-toggle="collapse" data-bs-target="#@collapseId" aria-expanded="false" aria-controls="@collapseId">
+                                    <i class="fas fa-chevron-down me-1"></i>Expandir
+                                </button>
                             </div>
                         </div>
 
-                        <div class="row g-2">
-                            <div class="col-lg-3 col-md-4 col-sm-6">@SelectStatus("Ficha de inscrição", "Registro.FichaInscricao", conformidade.FichaInscricao)</div>
-                            <div class="col-lg-3 col-md-4 col-sm-6">@SelectStatus("Pauta", "Registro.Pauta", conformidade.Pauta)</div>
-                            <div class="col-lg-3 col-md-4 col-sm-6">@SelectStatus("Convite", "Registro.Convite", conformidade.Convite)</div>
-                            <div class="col-lg-3 col-md-4 col-sm-6">@SelectStatus("Configuração Hub", "Registro.ConfiguracaoHub", conformidade.ConfiguracaoHub)</div>
-                            <div class="col-lg-3 col-md-4 col-sm-6">@SelectStatus("Script de Aula", "Registro.ScriptAula", conformidade.ScriptAula)</div>
-                            <div class="col-lg-3 col-md-4 col-sm-6">@SelectStatus("Material de Aula", "Registro.MaterialAula", conformidade.MaterialAula)</div>
-                            <div class="col-lg-3 col-md-4 col-sm-6">@SelectStatus("Banco de Questões", "Registro.BancoQuestoes", conformidade.BancoQuestoes)</div>
-                            <div class="col-lg-3 col-md-4 col-sm-6">@SelectStatus("Nuvem", "Registro.Nuvem", conformidade.Nuvem)</div>
-                            <div class="col-lg-3 col-md-4 col-sm-6">@SelectStatus("Preenchimento de pauta", "Registro.PreenchimentoPauta", conformidade.PreenchimentoPauta)</div>
-                            <div class="col-lg-3 col-md-4 col-sm-6">@SelectStatus("Certificado", "Registro.Certificado", conformidade.Certificado)</div>
-                        </div>
+                        <div class="collapse" id="@collapseId">
+                            <div class="border-top p-3">
+                                <div class="row g-2">
+                                    <div class="col-lg-3 col-md-4 col-sm-6">@SelectStatus("Ficha de inscrição", "Registro.FichaInscricao", conformidade.FichaInscricao)</div>
+                                    <div class="col-lg-3 col-md-4 col-sm-6">@SelectStatus("Pauta", "Registro.Pauta", conformidade.Pauta)</div>
+                                    <div class="col-lg-3 col-md-4 col-sm-6">@SelectStatus("Convite", "Registro.Convite", conformidade.Convite)</div>
+                                    <div class="col-lg-3 col-md-4 col-sm-6">@SelectStatus("Configuração Hub", "Registro.ConfiguracaoHub", conformidade.ConfiguracaoHub)</div>
+                                    <div class="col-lg-3 col-md-4 col-sm-6">@SelectStatus("Script de Aula", "Registro.ScriptAula", conformidade.ScriptAula)</div>
+                                    <div class="col-lg-3 col-md-4 col-sm-6">@SelectStatus("Material de Aula", "Registro.MaterialAula", conformidade.MaterialAula)</div>
+                                    <div class="col-lg-3 col-md-4 col-sm-6">@SelectStatus("Banco de Questões", "Registro.BancoQuestoes", conformidade.BancoQuestoes)</div>
+                                    <div class="col-lg-3 col-md-4 col-sm-6">@SelectStatus("Nuvem", "Registro.Nuvem", conformidade.Nuvem)</div>
+                                    <div class="col-lg-3 col-md-4 col-sm-6">@SelectStatus("Preenchimento de pauta", "Registro.PreenchimentoPauta", conformidade.PreenchimentoPauta)</div>
+                                    <div class="col-lg-3 col-md-4 col-sm-6">@SelectStatus("Certificado", "Registro.Certificado", conformidade.Certificado)</div>
+                                </div>
 
-                        <div class="row g-3 mt-2">
-                            <div class="col-md-6">
-                                <label class="form-label form-label-dk">Justificativa do Instrutor</label>
-                                <textarea name="Registro.JustificativaInstrutor" class="form-control" rows="3">@conformidade.JustificativaInstrutor</textarea>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label form-label-dk">Justificativa Coordenação</label>
-                                <textarea name="Registro.JustificativaCoordenacao" class="form-control" rows="3">@conformidade.JustificativaCoordenacao</textarea>
-                            </div>
-                        </div>
+                                <div class="row g-3 mt-2">
+                                    <div class="col-md-6">
+                                        <label class="form-label form-label-dk">Justificativa do Instrutor</label>
+                                        <textarea name="Registro.JustificativaInstrutor" class="form-control" rows="3">@conformidade.JustificativaInstrutor</textarea>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label form-label-dk">Justificativa Coordenação</label>
+                                        <textarea name="Registro.JustificativaCoordenacao" class="form-control" rows="3">@conformidade.JustificativaCoordenacao</textarea>
+                                    </div>
+                                </div>
 
-                        <div class="d-flex justify-content-end mt-3">
-                            <button type="submit" class="btn btn-dk-primary">
-                                <i class="fas fa-save me-1"></i>Salvar conformidade
-                            </button>
+                                <div class="d-flex justify-content-end mt-3">
+                                    <button type="submit" class="btn btn-dk-primary">
+                                        <i class="fas fa-save me-1"></i>Salvar conformidade
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </form>
                 </div>
@@ -112,4 +132,21 @@
         builder.AppendHtml("</select>");
         return builder;
     }
+}
+
+@section Scripts {
+    <script>
+        document.querySelectorAll('.js-collapse-label').forEach((button) => {
+            const target = document.querySelector(button.dataset.bsTarget);
+            if (!target) return;
+
+            target.addEventListener('shown.bs.collapse', () => {
+                button.innerHTML = '<i class="fas fa-chevron-up me-1"></i>Retrair';
+            });
+
+            target.addEventListener('hidden.bs.collapse', () => {
+                button.innerHTML = '<i class="fas fa-chevron-down me-1"></i>Expandir';
+            });
+        });
+    </script>
 }

@@ -46,8 +46,8 @@
                     <div style="font-size:1.8rem;color:#D79A00"><i class="fas fa-hourglass-half"></i></div>
                     <div>
                         <div class="text-muted small">Previsão de Alocação Atual</div>
-                        <div class="fs-4 fw-bold">@Model.PrevisaoAtual<span class="fs-6 fw-normal text-muted ms-1">horas</span></div>
-                        <div class="text-muted" style="font-size:0.75rem">Turmas que encerram em @DateTime.Now.ToString("MMMM/yyyy")</div>
+                        <div class="fs-4 fw-bold">@Model.PrevisaoAtual.ToString("0.##")<span class="fs-6 fw-normal text-muted ms-1">horas</span></div>
+                        <div class="text-muted" style="font-size:0.75rem">Soma dos encontros em @DateTime.Now.ToString("MMMM/yyyy")</div>
                     </div>
                 </div>
             </div>
@@ -60,8 +60,8 @@
                     <div style="font-size:1.8rem;color:#0d6efd"><i class="fas fa-chart-line"></i></div>
                     <div>
                         <div class="text-muted small">Previsão de Alocação Futura</div>
-                        <div class="fs-4 fw-bold">@Model.PrevisaoFutura<span class="fs-6 fw-normal text-muted ms-1">horas</span></div>
-                        <div class="text-muted" style="font-size:0.75rem">Turmas que encerram em @DateTime.Now.AddMonths(1).ToString("MMMM/yyyy")</div>
+                        <div class="fs-4 fw-bold">@Model.PrevisaoFutura.ToString("0.##")<span class="fs-6 fw-normal text-muted ms-1">horas</span></div>
+                        <div class="text-muted" style="font-size:0.75rem">Soma dos encontros em @DateTime.Now.AddMonths(1).ToString("MMMM/yyyy")</div>
                     </div>
                 </div>
             </div>
@@ -71,7 +71,7 @@
 
 <!-- Gráfico evolutivo -->
 <div class="shadow-sm rounded p-3 bg-white">
-    <h6 class="fw-bold mb-2"><i class="fas fa-chart-area me-2" style="color:#D79A00"></i>Evolução da Carga Horária por Mês</h6>
+    <h6 class="fw-bold mb-2"><i class="fas fa-chart-area me-2" style="color:#D79A00"></i>Evolução da Alocação por Encontros</h6>
     <div class="mb-2">
         <div class="btn-group btn-group-sm" role="group" id="filtroModalidade">
             <button type="button" class="btn btn-outline-secondary active" data-modalidade="todos">Todos</button>
@@ -116,7 +116,7 @@
         const d = dados[modalidade];
         return [
             {
-                label: 'Carga Horária',
+                label: 'Alocação',
                 data: d.hist.map((v, i) => d.tend[i] !== null ? null : v),
                 borderColor: '#D79A00', backgroundColor: 'rgba(215,154,0,0.1)',
                 fill: true, tension: 0.3, pointRadius: 4, spanGaps: true

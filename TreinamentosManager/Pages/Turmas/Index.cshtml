@@ -65,9 +65,8 @@
                         <th>Convite</th>
                         <th>Modalidade</th>
                         <th>Cliente</th>
-                        <th>Software</th>
-                        <th>Carga Horária</th>
-                        <th>Datas</th>
+                        <th>CH</th>
+                        <th>Encontros</th>
                         <th>Dias da Semana</th>
                         <th>Início</th>
                         <th>Fim</th>
@@ -116,7 +115,7 @@
                             <td>
                                 @if (item.ComunicadoEnviadoEm.HasValue)
                                 {
-                                    <span class="badge bg-success" title="Enviado para @item.ComunicadoEnviadoPara em @item.ComunicadoEnviadoEm.Value.ToString("dd/MM/yyyy HH:mm")">
+                                    <span class="badge bg-success" title="Enviado para @item.ComunicadoEnviadoPara em @item.ComunicadoEnviadoEm.Value.ToString("dd/MM/yy HH:mm")">
                                         <i class="fas fa-check me-1"></i>Enviado
                                     </span>
                                 }
@@ -138,13 +137,12 @@
                                 }
                             </td>
                             <td>@(item.Cliente?.Nome ?? "—")</td>
-                            <td>@(item.Software?.Nome ?? "—")</td>
                             <td>@Html.DisplayFor(m => item.CargaHoraria)h</td>
                             <td>
                                 @if (item.Datas.Any())
                                 {
-                                    <span title="@string.Join(", ", item.Datas.OrderBy(d => d.Data).Select(d => $"{d.Data:dd/MM/yyyy HH:mm} ({d.DuracaoHoras:0.##}h)"))">
-                                        @item.Datas.Count data(s)
+                                    <span title="@string.Join(", ", item.Datas.OrderBy(d => d.Data).Select(d => $"{d.Data:dd/MM/yy HH:mm} ({d.DuracaoHoras:0.##}h)"))">
+                                        @item.Datas.Count encontro(s)
                                     </span>
                                 }
                                 else
@@ -153,8 +151,8 @@
                                 }
                             </td>
                             <td>@Html.DisplayFor(m => item.DiasDaSemana)</td>
-                            <td>@item.Inicio.ToString("dd/MM/yyyy")</td>
-                            <td>@item.Fim.ToString("dd/MM/yyyy")</td>
+                            <td>@item.Inicio.ToString("dd/MM/yy")</td>
+                            <td>@item.Fim.ToString("dd/MM/yy")</td>
                             <td>@(item.Instrutor?.Nome ?? "—")</td>
                             <td class="text-center">
                                 <a asp-page="./Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-warning" title="Editar">
@@ -175,7 +173,7 @@
                     @if (!Model.Turmas.Any())
                     {
                         <tr>
-                            <td colspan="15" class="text-center py-4 text-muted">
+                            <td colspan="14" class="text-center py-4 text-muted">
                                 <i class="fas fa-inbox fa-2x mb-2 d-block"></i>Nenhuma turma encontrada.
                             </td>
                         </tr>

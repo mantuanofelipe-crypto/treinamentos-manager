@@ -19,6 +19,7 @@ namespace TreinamentosManager.Pages.Conformidade
         public string[] StatusOptions => ConformidadeStatus.Todos;
 
         public string? FiltroStatus { get; set; }
+        public string? FiltroConformidade { get; set; }
 
         [TempData]
         public string? Mensagem { get; set; }
@@ -26,9 +27,10 @@ namespace TreinamentosManager.Pages.Conformidade
         [BindProperty]
         public TurmaConformidade Registro { get; set; } = default!;
 
-        public async Task OnGetAsync(string? status)
+        public async Task OnGetAsync(string? status, string? conformidade)
         {
             FiltroStatus = status;
+            FiltroConformidade = conformidade;
 
             var turmas = await _context.Turmas
                 .Include(t => t.Cliente)
@@ -40,6 +42,19 @@ namespace TreinamentosManager.Pages.Conformidade
 
             if (!string.IsNullOrWhiteSpace(status))
                 turmas = turmas.Where(t => t.Status == status).ToList();
+
+            if (conformidade == "100")
+            {
+                turmas = turmas
+                    .Where(t => t.ConformidadeDetalhes?.ConformidadeGeral == 100m)
+                    .ToList();
+            }
+            else if (conformidade == "menor100")
+            {
+                turmas = turmas
+                    .Where(t => (t.ConformidadeDetalhes?.ConformidadeGeral ?? 0m) < 100m)
+                    .ToList();
+            }
 
             Turmas = turmas;
         }
